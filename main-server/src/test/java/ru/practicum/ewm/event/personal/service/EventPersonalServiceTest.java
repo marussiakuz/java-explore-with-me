@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -78,19 +79,19 @@ class EventPersonalServiceTest {
 
         List<EventShortOutDto> filteredUsingStreamByUserFirst = randomEvents.stream()
                 .filter(event -> (event.getInitiator().getId() == userIds[0]))
-                .toList();
+                .collect(Collectors.toList());
 
         List<EventShortOutDto> foundByUserSecond = eventPersonalService.getEvents(userIds[1], 0, count);
 
         List<EventShortOutDto> filteredUsingStreamByUserSecond = randomEvents.stream()
                 .filter(event -> (event.getInitiator().getId() == userIds[1]))
-                .toList();
+                .collect(Collectors.toList());
 
         List<EventShortOutDto> foundByUserThird = eventPersonalService.getEvents(userIds[2], 0, count);
 
         List<EventShortOutDto> filteredUsingStreamByUserThird = randomEvents.stream()
                 .filter(event -> (event.getInitiator().getId() == userIds[2]))
-                .toList();
+                .collect(Collectors.toList());
 
         assertThat(foundByUserFirst.size() + foundByUserSecond.size() + foundByUserThird.size(), equalTo(count));
 

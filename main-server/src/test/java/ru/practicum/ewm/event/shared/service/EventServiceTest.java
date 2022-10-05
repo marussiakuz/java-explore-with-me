@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -85,7 +86,7 @@ class EventServiceTest {
                 .sorted((e1, e2) -> e2.getEventDate().compareTo(e1.getEventDate()))
                 .limit(10)
                 .map(this::toEventShort)
-                .toList();
+                .collect(Collectors.toList());
 
         assertThat(foundByParams.size(), equalTo(filteredUsingStream.size()));
         assertTrue(foundByParams.containsAll(filteredUsingStream));

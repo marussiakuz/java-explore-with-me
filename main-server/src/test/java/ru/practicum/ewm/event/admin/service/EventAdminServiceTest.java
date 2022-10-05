@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -79,7 +80,7 @@ class EventAdminServiceTest {
                 .filter(event -> (event.getInitiator().getId() == (long) userIds[indexUser])
                         && (event.getState() == State.valueOf(state))
                         && (event.getCategory().getId() == (long) catIds[indexCatId]))
-                .toList();
+                .collect(Collectors.toList());
 
         assertThat(found.size(), equalTo(filteredUsingStream.size()));
         assertTrue(found.containsAll(filteredUsingStream));
@@ -100,7 +101,7 @@ class EventAdminServiceTest {
                 .filter(event -> event.getState() == state
                         && event.getEventDate().isAfter(LocalDateTime.parse(start, DATE_TIME_FORMATTER))
                         && event.getEventDate().isBefore(LocalDateTime.parse(end, DATE_TIME_FORMATTER)))
-                .toList();
+                .collect(Collectors.toList());
 
         assertThat(found.size(), equalTo(filteredUsingStream.size()));
         assertTrue(found.containsAll(filteredUsingStream));
