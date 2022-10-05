@@ -34,6 +34,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -597,7 +598,7 @@ class EventPersonalServiceImplTest {
         Event event = initEvent(11, true, State.PENDING);
         Request request = initRequest(22);
         List<Request> requests = IntStream.range(0, count)
-                .mapToObj(this::initRequest).toList();
+                .mapToObj(this::initRequest).collect(Collectors.toList());
 
         Mockito.when(eventRepository.findByIdAndInitiatorId(11, 17))
                 .thenReturn(Optional.of(event));
