@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
 
         if(ids != null) {
             QUser user = QUser.user;
-            List<Long> idsLong = Arrays.stream(ids).mapToObj(Long::valueOf).toList();
+            List<Long> idsLong = Arrays.stream(ids).mapToObj(Long::valueOf).collect(Collectors.toList());
             users = userRepository.findAll(user.id.in(idsLong), pageable).getContent();
         } else users = userRepository.findAll(pageable).getContent();
 

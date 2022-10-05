@@ -74,7 +74,7 @@ public class EventServiceImpl extends StatisticEventService implements EventServ
         if(text != null)
             conditions.add(event.annotation.containsIgnoreCase(text).or(event.description.containsIgnoreCase(text)));
         if(categories != null) {
-            List<Long> catIds = Arrays.stream(categories).mapToObj(Long::valueOf).toList();
+            List<Long> catIds = Arrays.stream(categories).mapToObj(Long::valueOf).collect(Collectors.toList());
             conditions.add(event.category.id.in(catIds));
         }
         if(paid != null) conditions.add(paid ? event.paid.isTrue() : event.paid.isFalse());
