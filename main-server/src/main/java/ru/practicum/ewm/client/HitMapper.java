@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 public class HitMapper {
 
-    public static HitDto HttpServletRequestToHit(HttpServletRequest request) {
+    public static HitDto requestToHit(HttpServletRequest request) {
         return HitDto.builder()
                 .app("ewm-main-service")
                 .uri(request.getRequestURI())

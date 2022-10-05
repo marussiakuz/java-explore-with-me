@@ -291,15 +291,13 @@ class EventAdminServiceTest {
                     EventFullOutDto saved = eventPersonalService.createEvent(userId, event);
                     long eventId = saved.getId();
                     int status = new Random().nextInt(3);
-                    if(status == 0) {
+                    if (status == 0) {
                         EventFullOutDto canceled = eventPersonalService.cancelEvent(userId, eventId);
                         events.add(canceled);
-                    }
-                    else if(status == 1) {
+                    } else if (status == 1) {
                         EventFullOutDto published = eventAdminService.publishEvent(eventId);
                         events.add(published);
-                    }
-                    else events.add(saved);
+                    } else events.add(saved);
                 });
 
         return events;

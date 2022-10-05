@@ -53,7 +53,7 @@ public class CompilationAdminServiceImpl extends StatisticEventService implement
 
     @Override
     public void deleteCompilation(long compId) {
-        if(!compilationRepository.existsById(compId))
+        if (!compilationRepository.existsById(compId))
             throw new CompilationNotFoundException(String.format("Compilation with id=%s not found", compId));
 
         compilationRepository.deleteById(compId);

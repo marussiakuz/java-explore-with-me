@@ -31,7 +31,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public RequestOutDto createRequest(long userId, long eventId) {
-        if(requestRepository.existsByRequesterIdAndEventId(userId, eventId))
+        if (requestRepository.existsByRequesterIdAndEventId(userId, eventId))
             throw new ConditionIsNotMetException(String.format("User with id=%s already has a request to participate " +
                     "in event with id=%s", userId, eventId));
 
@@ -57,7 +57,7 @@ public class RequestServiceImpl implements RequestService {
         Request request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new RequestNotFoundException(String.format("Request with id=%s not found", requestId)));
 
-        if(request.getRequester().getId() != userId)
+        if (request.getRequester().getId() != userId)
             throw new ConditionIsNotMetException("the request belongs to another user");
 
         request.setStatus(Status.CANCELED);
@@ -75,18 +75,18 @@ public class RequestServiceImpl implements RequestService {
     }
 
     private void checkEventForRestrictions(Event event, long userId) {
-        if(event.getInitiator().getId() == userId)
+        if (event.getInitiator().getId() == userId)
             throw new ConditionIsNotMetException("The initiator of the event cannot create a request to participate " +
                     "in his own event");
 
-        if(event.getState() != State.PUBLISHED)
+        if (event.getState() != State.PUBLISHED)
             throw new ConditionIsNotMetException("cannot apply to participate in an unpublished event");
 
         int limit = event.getParticipantLimit();
 
-        if(limit > 0) {
+        if (limit > 0) {
             int confirmedRequests = (int) requestRepository.countByEventIdAndStatus(event.getId(), Status.CONFIRMED);
-            if(confirmedRequests == limit)
+            if (confirmedRequests == limit)
                 throw new ConditionIsNotMetException(String.format("The event with id=%s has already reached " +
                         "the request limit", event.getId()));
         }

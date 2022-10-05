@@ -244,7 +244,7 @@ class CompilationAdminServiceTest {
 
     private long createEventAndGetId() {
         UserOutDto user = userService.getUsers(null, 0, 10).get(0);
-        CategoryOutDto category= categoryService.getCategories(0, 10).get(0);
+        CategoryOutDto category = categoryService.getCategories(0, 10).get(0);
 
         EventInDto anotherEvent = EventInDto.builder()
                 .paid(false)

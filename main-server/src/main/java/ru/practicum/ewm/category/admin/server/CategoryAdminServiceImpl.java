@@ -50,11 +50,11 @@ public class CategoryAdminServiceImpl implements CategoryAdminService {
 
     @Override
     public void deleteCategory(long catId) {
-        if(eventRepository.existsByCategoryId(catId))
+        if (eventRepository.existsByCategoryId(catId))
             throw new ConditionIsNotMetException("It isn't possible to delete a category due to binding at least one " +
                     "event to this category");
 
-        if(!categoryRepository.existsById(catId))
+        if (!categoryRepository.existsById(catId))
             throw new CategoryNotFoundException(String.format("Category with id=%s not found", catId));
 
         categoryRepository.deleteById(catId);

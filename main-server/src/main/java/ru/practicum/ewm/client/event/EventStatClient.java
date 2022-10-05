@@ -44,7 +44,7 @@ public class EventStatClient extends StatClient {
     }
 
     public void sendViewToStatsServer(HttpServletRequest request) {
-        HitDto body = HitMapper.HttpServletRequestToHit(request);
+        HitDto body = HitMapper.requestToHit(request);
         boolean isSuccessful = post(API_POSTFIX_POST, body);
         log.info("viewing information was sent to statistic server:\nuri={}, \n\"the request {}", body.getUri(),
                 isSuccessful ? "was sent successfully" : "returned with an error");

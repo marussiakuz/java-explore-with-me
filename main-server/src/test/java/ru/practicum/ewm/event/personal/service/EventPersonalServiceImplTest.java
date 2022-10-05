@@ -108,7 +108,7 @@ class EventPersonalServiceImplTest {
     }
 
     @Test
-    void whenGetEventByIdIfRequestModerationTrueThenCallAddConfirmedRequestsAndViews () {
+    void whenGetEventByIdIfRequestModerationTrueThenCallAddConfirmedRequestsAndViews() {
         Event event = initEvent(2, true, State.PENDING);
 
         Mockito.when(eventRepository.findByIdAndInitiatorId(2, 11))
@@ -142,7 +142,7 @@ class EventPersonalServiceImplTest {
     }
 
     @Test
-    void whenGetEventByIdIfRequestModerationFalseThenCallCountByIdAndStatusRequestRepository () {
+    void whenGetEventByIdIfRequestModerationFalseThenCallCountByIdAndStatusRequestRepository() {
         Event event = initEvent(3, false, State.CANCELED);
 
         Mockito.when(eventRepository.findByIdAndInitiatorId(3, 11))

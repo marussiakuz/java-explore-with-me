@@ -84,7 +84,7 @@ public class EventAdminServiceImpl extends StatisticEventService implements Even
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException(String.format("Event with id=%s not found", eventId)));
 
-        if(event.getState() != State.PENDING)
+        if (event.getState() != State.PENDING)
             throw new ConditionIsNotMetException("the event must be in the publication waiting state");
 
         if (event.getEventDate().isBefore(LocalDateTime.now().plusHours(1)))
@@ -96,7 +96,7 @@ public class EventAdminServiceImpl extends StatisticEventService implements Even
         Event saved = eventRepository.save(event);
         log.info("the state of event id={} changed to PUBLISHED", eventId);
 
-        return EventMapper.toEventFull(saved, 0 , 0);
+        return EventMapper.toEventFull(saved, 0, 0);
     }
 
     @Override
@@ -104,7 +104,7 @@ public class EventAdminServiceImpl extends StatisticEventService implements Even
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException(String.format("Event with id=%s not found", eventId)));
 
-        if(event.getState() == State.PUBLISHED)
+        if (event.getState() == State.PUBLISHED)
             throw new ConditionIsNotMetException("the event must not be published");
 
         event.setState(State.CANCELED);
@@ -119,17 +119,17 @@ public class EventAdminServiceImpl extends StatisticEventService implements Even
         List<BooleanExpression> conditions = new ArrayList<>();
         QEvent event = QEvent.event;
 
-        if(users != null) {
+        if (users != null) {
             List<Long> userIds = Arrays.stream(users).mapToObj(Long::valueOf).collect(Collectors.toList());
             conditions.add(event.initiator.id.in(userIds));
         }
-        if(states != null) conditions.add(event.state.in(states));
-        if(categories != null) {
+        if (states != null) conditions.add(event.state.in(states));
+        if (categories != null) {
             List<Long> catIds = Arrays.stream(categories).mapToObj(Long::valueOf).collect(Collectors.toList());
             conditions.add(event.category.id.in(catIds));
         }
-        if(rangeStart != null) conditions.add(event.eventDate.after(rangeStart));
-        if(rangeEnd != null) conditions.add(event.eventDate.before(rangeEnd));
+        if (rangeStart != null) conditions.add(event.eventDate.after(rangeStart));
+        if (rangeEnd != null) conditions.add(event.eventDate.before(rangeEnd));
 
         return conditions.stream()
                 .reduce(BooleanExpression::and);
@@ -139,27 +139,27 @@ public class EventAdminServiceImpl extends StatisticEventService implements Even
         Long newCatId = changedDto.getCategory();
         LocationDto newLocation = changedDto.getLocation();
 
-        if(newCatId != null && !newCatId.equals(event.getCategory().getId()))
+        if (newCatId != null && !newCatId.equals(event.getCategory().getId()))
             event.setCategory(categoryRepository.findById(newCatId)
                     .orElseThrow(() -> new CategoryNotFoundException(String.format("Category with id=%s not found",
                             newCatId))));
-        if(changedDto.getAnnotation() != null) event.setAnnotation(changedDto.getAnnotation());
-        if(changedDto.getDescription() != null) event.setDescription(changedDto.getDescription());
-        if(changedDto.getTitle() != null) event.setTitle(changedDto.getTitle());
-        if(changedDto.getEventDate() != null) event.setEventDate(changedDto.getEventDate());
-        if(newLocation != null) {
+        if (changedDto.getAnnotation() != null) event.setAnnotation(changedDto.getAnnotation());
+        if (changedDto.getDescription() != null) event.setDescription(changedDto.getDescription());
+        if (changedDto.getTitle() != null) event.setTitle(changedDto.getTitle());
+        if (changedDto.getEventDate() != null) event.setEventDate(changedDto.getEventDate());
+        if (newLocation != null) {
             event.setLocationLatitude(newLocation.getLatitude());
             event.setLocationLongitude(newLocation.getLongitude());
         }
-        if(changedDto.getPaid() != null) event.setPaid(changedDto.getPaid());
-        if(changedDto.getParticipantLimit() != null) event.setParticipantLimit(changedDto.getParticipantLimit());
-        if(changedDto.getRequestModeration() != null) event.setRequestModeration(changedDto.getRequestModeration());
+        if (changedDto.getPaid() != null) event.setPaid(changedDto.getPaid());
+        if (changedDto.getParticipantLimit() != null) event.setParticipantLimit(changedDto.getParticipantLimit());
+        if (changedDto.getRequestModeration() != null) event.setRequestModeration(changedDto.getRequestModeration());
 
         return event;
     }
 
     private LocalDateTime mapToLocalDateTime(String encoded) {
-        if(encoded == null) return null;
+        if (encoded == null) return null;
 
         String decoded;
         try {

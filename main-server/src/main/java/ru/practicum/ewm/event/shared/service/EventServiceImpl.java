@@ -46,7 +46,7 @@ public class EventServiceImpl extends StatisticEventService implements EventServ
                 onlyAvailable);
         log.debug("the final condition has been successfully formed: {}", finalCondition);
 
-        if(SortingEvents.valueOf(sort) == SortingEvents.EVENT_DATE) return getEventsSortedByDate(finalCondition, from,
+        if (SortingEvents.valueOf(sort) == SortingEvents.EVENT_DATE) return getEventsSortedByDate(finalCondition, from,
                 size);
 
         return getEventsSortedByViews(finalCondition, from, size);
@@ -69,17 +69,17 @@ public class EventServiceImpl extends StatisticEventService implements EventServ
         List<BooleanExpression> conditions = new ArrayList<>();
         QEvent event = QEvent.event;
 
-        conditions.add(event.state.eq(State.PUBLISHED).and(event.eventDate.after(rangeStart == null? LocalDateTime.now()
+        conditions.add(event.state.eq(State.PUBLISHED).and(event.eventDate.after(rangeStart == null ? LocalDateTime.now()
                 : rangeStart)));
-        if(text != null)
+        if (text != null)
             conditions.add(event.annotation.containsIgnoreCase(text).or(event.description.containsIgnoreCase(text)));
-        if(categories != null) {
+        if (categories != null) {
             List<Long> catIds = Arrays.stream(categories).mapToObj(Long::valueOf).collect(Collectors.toList());
             conditions.add(event.category.id.in(catIds));
         }
-        if(paid != null) conditions.add(paid ? event.paid.isTrue() : event.paid.isFalse());
-        if(rangeEnd != null) conditions.add(event.eventDate.before(rangeEnd));
-        if(onlyAvailable) {
+        if (paid != null) conditions.add(paid ? event.paid.isTrue() : event.paid.isFalse());
+        if (rangeEnd != null) conditions.add(event.eventDate.before(rangeEnd));
+        if (onlyAvailable) {
             QRequest request = QRequest.request;
             BooleanExpression ifLimitIsZero = event.participantLimit.eq(0);
             BooleanExpression ifRequestModerationFalse = event.requestModeration.isFalse()

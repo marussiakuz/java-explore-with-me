@@ -24,7 +24,7 @@ public abstract class StatisticEventService {
     protected final RequestRepository requestRepository;
 
     protected List<EventOutDto> addConfirmedRequestsAndViews(List<Event> events, boolean isFull) {
-        if(events.isEmpty()) {
+        if (events.isEmpty()) {
             log.info("an empty list of events has been passed");
             return new ArrayList<>();
         }

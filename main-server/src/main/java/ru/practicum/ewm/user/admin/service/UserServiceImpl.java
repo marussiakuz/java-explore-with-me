@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
         Pageable pageable = Pagination.of(from, size);
         List<User> users;
 
-        if(ids != null) {
+        if (ids != null) {
             QUser user = QUser.user;
             List<Long> idsLong = Arrays.stream(ids).mapToObj(Long::valueOf).collect(Collectors.toList());
             users = userRepository.findAll(user.id.in(idsLong), pageable).getContent();
@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(long userId) {
-        if(!userRepository.existsById(userId))
+        if (!userRepository.existsById(userId))
             throw new UserNotFoundException(String.format("User with id=%s not found", userId));
 
         userRepository.deleteById(userId);

@@ -100,7 +100,7 @@ public class EventPersonalServiceImpl extends StatisticEventService implements E
                 .orElseThrow(() -> new EventNotFoundException(String.format("The user with id=%s didn't initiate " +
                         "the event with id=%s", userId, eventId)));
 
-        if(event.getState() != State.PENDING)
+        if (event.getState() != State.PENDING)
             throw new ConditionIsNotMetException("Only pending events can be cancelled");
 
         event.setState(State.CANCELED);
@@ -111,7 +111,7 @@ public class EventPersonalServiceImpl extends StatisticEventService implements E
 
     @Override
     public List<RequestOutDto> getRequests(long userId, long eventId) {
-        if(!eventRepository.existsByIdAndInitiatorId(eventId, userId))
+        if (!eventRepository.existsByIdAndInitiatorId(eventId, userId))
             throw new EventNotFoundException(String.format("The user with id=%s didn't initiate the event with id=%s",
                     userId, eventId));
 
@@ -129,14 +129,14 @@ public class EventPersonalServiceImpl extends StatisticEventService implements E
         Request request = requestRepository.findById(reqId)
                 .orElseThrow(() -> new RequestNotFoundException(String.format("Request with id=%s not found", reqId)));
 
-        if(event.getParticipantLimit() != 0 & event.isRequestModeration()) {
+        if (event.getParticipantLimit() != 0 & event.isRequestModeration()) {
             int limit = event.getParticipantLimit();
             int confirmedRequests = (int) requestRepository.countByEventIdAndStatus(eventId, Status.CONFIRMED);
-            if(limit > confirmedRequests) {
+            if (limit > confirmedRequests) {
                 request.setStatus(Status.CONFIRMED);
                 requestRepository.save(request);
                 log.info("the status of the request id={} changed to CONFIRMED", reqId);
-                if(limit == ++confirmedRequests) {
+                if (limit == ++confirmedRequests) {
                     rejectAllPendingRequests(eventId);
                     log.info("all remaining requests to event id={} in the PENDING status have been changed to " +
                             "REJECTED status", eventId);
@@ -150,7 +150,7 @@ public class EventPersonalServiceImpl extends StatisticEventService implements E
 
     @Override
     public RequestOutDto rejectRequest(long userId, long eventId, long reqId) {
-        if(!eventRepository.existsByIdAndInitiatorId(eventId, userId))
+        if (!eventRepository.existsByIdAndInitiatorId(eventId, userId))
             throw new EventNotFoundException(String.format("The user with id=%s didn't initiate the event with id=%s",
                     userId, eventId));
 
@@ -165,31 +165,31 @@ public class EventPersonalServiceImpl extends StatisticEventService implements E
     }
 
     private void checkEvent(Event event) {
-        if(event.getState() != State.CANCELED && event.getState() != State.PENDING)
+        if (event.getState() != State.CANCELED && event.getState() != State.PENDING)
             throw new ConditionIsNotMetException("Only pending or canceled events can be changed");
     }
 
     private Event checkChangesAndUpdate(EventChangedDto changed, Event beingUpdated) {
         checkEvent(beingUpdated);
-        if(changed.getEventDate() != null) {
-            if(changed.getEventDate().isBefore(LocalDateTime.now().plusHours(2)))
+        if (changed.getEventDate() != null) {
+            if (changed.getEventDate().isBefore(LocalDateTime.now().plusHours(2)))
                 throw new ConditionIsNotMetException("The event must not take place earlier than two hours from the " +
                         "current time");
             beingUpdated.setEventDate(changed.getEventDate());
         }
-        if(changed.getAnnotation() != null) beingUpdated.setAnnotation(changed.getAnnotation());
-        if(changed.getDescription() != null) beingUpdated.setDescription(changed.getDescription());
-        if(changed.getTitle() != null) beingUpdated.setTitle(changed.getTitle());
-        if(changed.getCategory() != null && !changed.getCategory().equals(beingUpdated.getCategory().getId())) {
+        if (changed.getAnnotation() != null) beingUpdated.setAnnotation(changed.getAnnotation());
+        if (changed.getDescription() != null) beingUpdated.setDescription(changed.getDescription());
+        if (changed.getTitle() != null) beingUpdated.setTitle(changed.getTitle());
+        if (changed.getCategory() != null && !changed.getCategory().equals(beingUpdated.getCategory().getId())) {
             long catId = changed.getCategory();
             beingUpdated.setCategory(categoryRepository.findById(catId)
                     .orElseThrow(() -> new CategoryNotFoundException(String.format("Category with id=%s not found",
                             catId))));
         }
-        if(changed.getParticipantLimit() != null) beingUpdated
+        if (changed.getParticipantLimit() != null) beingUpdated
                 .setParticipantLimit(changed.getParticipantLimit());
-        if(changed.getPaid() != null) beingUpdated.setPaid(changed.getPaid());
-        if(beingUpdated.getState() == State.CANCELED) beingUpdated.setState(State.PENDING);
+        if (changed.getPaid() != null) beingUpdated.setPaid(changed.getPaid());
+        if (beingUpdated.getState() == State.CANCELED) beingUpdated.setState(State.PENDING);
         return beingUpdated;
     }
 
@@ -206,9 +206,9 @@ public class EventPersonalServiceImpl extends StatisticEventService implements E
         QEvent event = QEvent.event;
         BooleanExpression condition = event.initiator.id.eq(userId).and(event.state.in(State.PENDING, State.CANCELED));
         Iterable<Event> events = eventRepository.findAll(condition);
-        if(!events.iterator().hasNext())
+        if (!events.iterator().hasNext())
             throw new ConditionIsNotMetException("not a single event with the pending or canceled status was found");
-        if(events.spliterator().getExactSizeIfKnown() > 1) {
+        if (events.spliterator().getExactSizeIfKnown() > 1) {
             throw new ConditionIsNotMetException("found more than one event with the pending or canceled status");
         }
         return events.iterator().next();
