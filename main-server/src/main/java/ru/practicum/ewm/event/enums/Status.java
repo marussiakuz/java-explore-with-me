@@ -6,10 +6,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum Status {
-
-    RENDING("RENDING"),
+    PENDING("PENDING"),
     CONFIRMED("CONFIRMED"),
-    REJECTED("REJECTED");
+    REJECTED("REJECTED"),
+    CANCELED("CANCELED");
 
     private final String status;
 }

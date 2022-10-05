@@ -1,5 +1,6 @@
 package ru.practicum.ewm.event.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,14 +13,14 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class EventAdminChangedDto {
-
     private String annotation;
     private String description;
-    private int category;
+    private Long category;
     private String title;
-    private int participantLimit;
+    private Integer participantLimit;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
-    private LocationDto locationDto;
-    private int requestModeration;
-    private boolean paid;
+    private LocationDto location;
+    private Boolean requestModeration;
+    private Boolean paid;
 }

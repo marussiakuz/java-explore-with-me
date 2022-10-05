@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class CategoryOutDto {
-
-    private Long id;
+    private long id;
     private String name;
 }

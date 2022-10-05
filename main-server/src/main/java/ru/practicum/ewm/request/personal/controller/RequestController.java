@@ -1,14 +1,16 @@
 package ru.practicum.ewm.request.personal.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.request.personal.model.dto.RequestOutDto;
+import ru.practicum.ewm.request.model.dto.RequestOutDto;
 import ru.practicum.ewm.request.personal.service.RequestService;
 
 import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RestController
+@Validated
 @RequestMapping("/users/{userId}/requests")
 public class RequestController {
     private final RequestService requestService;

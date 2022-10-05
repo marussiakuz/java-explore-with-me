@@ -1,5 +1,34 @@
 # java-explore-with-me
 Template repository for ExploreWithMe project.
 
+<div>
+    <h1 align="center">Architecture diagram: </h1><br/>
+<div/>
 
-![https://app.diagrams.net/?lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1#R7VxNb%2BIwEP01HCslcb44Fmi7PVRaicPurcoSF7xN4tSYj%2B6vXwecEjpeaSvRTNEAB8JziGO%2FmDdv7GTAxuX2TmX14kHmvBgEXr4dsMkgCAKW%2BOajQV4t4nsWmSuR77EOMBV%2FuAU9i65EzpdHO2opCy3qY3Amq4rP9BGWKSU3x7s9yeK41jqbcwBMZ1kB0R8i14s9mgbJAf%2FGxXzR1uzHw31JmbU725YsF1kuNx2I3QzYWEmp91vldsyLpvfaftn%2F7vYfpW8npnil%2F%2BcHj8%2FBZCKe%2Ffvty%2Br618%2BX4P4xvvJ9tj%2FOOitWtsmzTPO5VK%2F2tPVr2xeab01No4UuCwP4ZnOplXzmY1lItduFebuXKXkSRdHBR7u3wbNCzCuDzcxZc1M4WnOlhenva1tQijxvKhxtFkLzaZ3Nmto35vIymJKrKudNg5o6YA%2FYTmmOybcdyPbIHZcl103LPFt6lXqWHnuBmh5pL71Nh28LLTpUt7xm9gqbvx38QILZsDx8iJMQcFLuR9bpCBnvXl%2BQkCR4T4g3hITE%2FRISAUJyLU9Jx03cvL8gHXEM6EggHUm%2FdMSAjiwvRUV1fETo4yOBIiIr09VFYbqM6DBh6MMkBawsuVoL0xNEKXEoe7%2BUtEfuUKJ4TVRJhg5d75kOH9BhonRlmk1SSYYOZe9XSJoDXITkmBSHuvc8SqBFJK0jQ3RlD6BBJCwj%2BKoO7eFMlrUoMi3kSV3J%2BaRRUoe495tFCaBLJJxFSfG1HZpEskmUFF%2FUoTkknENJHZLe8%2BgYOjSEduSbogt7e1VcIl87btAdO4OOnW7km6Bn4hn065QTKAl6Jp45pnOJy0iCbtcZtOu0ZQRf2KFjpysjMb6qQ6vO100TSaZOYoes95s6YdCqE06dxPiqDs062dRJjC%2Fn0KoTTp3EDjHvd3SE0KVTj3kjdEkPHVPrlGPeCN2rh9Cr0415I%2FQEfAides3VUlYZ0TArQs%2FBh9CnkxcSdKseQqtOWkhCfGmHbp2ukIT4ug7NOuUcfIju1kPo1qnLSIhu2kNo2mnLCLqwt%2BP0IiMGYOiqHrlm1l9WfEk0C8%2FQs%2FARNOyEs%2FAMXdcj6NjJZuEZuqBHMMqinT9h6In46LKG8f04CdB1PYZhFunAN0A37PFlDWOHDvREfALpWC1P%2B391PlFv4ND1fqPe5BL1dvlAF%2FXkEvUeniCAruYJnKIivPbER7%2BpLXHd%2Bkk75PXxFR1OUJEOeX10s57AOSq6Ia%2FrAXOfRcftRD19D9Lb0XS8ntYv4%2Fzm4fcVDHinOtPjQpzPkmvQ%2Fw6WPhD29nizupMRxxoHO4XrNV8bxKtXvwox%2BzA%2Flaz4O2os9OVZadfjdFh5%2ByvrhRaoI4cUY4cYJdaZ%2Fri2nDEzwecxY74enom6K%2Bs8Wpbd%2FAU%3]
+<div>
+  <p align="center">
+    <img width="180" height="1000" alt="ewm architecture diagram" src="https://user-images.githubusercontent.com/96682553/191831459-413f88c2-4720-4dd0-bfc6-572597257d10.png">
+  </p>
+<div/>
+
+<div>
+    <h1 align="center">Scheme service interaction: </h1><br/>
+  <h6>folder client -> class StatClient (with RestTemplate)
+    <h6/>
+<div/>
+
+<div>
+  <p align="center">
+    <img width="483" alt="scheme service interaction" src="https://user-images.githubusercontent.com/96682553/191896256-860d1294-da67-4144-86dc-cd03737c9f54.png">
+  </p>
+<div/>
+
+<div>
+  <h1 align="center">database schema (ewm main service): <br/></h1>
+<div/>
+
+<div>
+  <p align="center">
+    <img width="920" alt="ewm main service database schema" src="https://user-images.githubusercontent.com/96682553/191826289-07e19f22-7cd8-4998-b9e4-09dadd4f2323.png">
+ </p>
+<div/>
