@@ -10,7 +10,7 @@ import java.util.List;
 
 @Data
 public class ErrorResponse {
-    public final static DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private List<String> errors = new ArrayList<>();
     private String message;
     private String reason;
