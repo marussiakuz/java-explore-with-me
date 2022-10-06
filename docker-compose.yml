@@ -1,6 +1,6 @@
 version: '3.8'
 services:
-  db-stats:
+  db_stats:
     image: postgres:13.7-alpine
     ports:
       - "6541:5432"
@@ -9,7 +9,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=iamroot
 
-  db-main:
+  db_main:
     image: postgres:13.7-alpine
     ports:
       - "6542:5432"
@@ -18,26 +18,26 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=iamroot
 
-  main-server:
-    build: ./main-server
+  main_server:
+    build: ./main_server
     ports:
       - "8080:8080"
     depends_on:
-      - stats-server
+      - stats_server
     environment:
       - SERVER_PORT=8080
-      - STATS_SERVER_URL=http://stats-server:9090
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-main:5432/ewm_main_service
+      - STATS_SERVER_URL=http://stats_server:9090
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db_main:5432/ewm_main_service
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=iamroot
 
-  stats-server:
-    build: ./stats-server
+  stats_server:
+    build: ./stats_server
     ports:
       - "9090:9090"
     depends_on:
-      - db-stats
+      - db_stats
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-stats:5432/ewm_stat_service
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db_stats:5432/ewm_stat_service
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=iamroot
