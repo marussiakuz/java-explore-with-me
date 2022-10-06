@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +45,7 @@ public class StatServiceImpl implements StatService {
                 .map(uri -> statRepository.getViewWithHits(finalStartDateTime, finalEndDateTime, uri, unique))
                 .flatMap(Collection::stream)
                 .map(ViewMapper::toViewOut)
-                .toList();
+                .collect(Collectors.toList());
 
         log.info("request for statistic of views successfully processed, views list size={}", views.size());
         return views;
