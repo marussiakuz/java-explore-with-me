@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class StatServiceImpl implements StatService {
-    private final static DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final StatRepository statRepository;
 
     @Override
@@ -36,7 +36,7 @@ public class StatServiceImpl implements StatService {
 
     @Override
     public List<ViewOutDto> getStats(String start, String end, String[] uris, boolean unique) {
-        if(uris == null) return new ArrayList<>();
+        if (uris == null) return new ArrayList<>();
 
         LocalDateTime finalStartDateTime = mapToLocalDateTime(start);
         LocalDateTime finalEndDateTime = mapToLocalDateTime(end);
@@ -52,7 +52,7 @@ public class StatServiceImpl implements StatService {
     }
 
     private LocalDateTime mapToLocalDateTime(String encoded) {
-        if(encoded == null) return null;
+        if (encoded == null) return null;
 
         String decoded;
         try {

@@ -49,8 +49,8 @@ public class StatRepositoryImpl implements StatRepositoryCustom {
         List<BooleanExpression> conditions = new ArrayList<>();
 
         conditions.add(view.uri.eq(uri));
-        if(start != null) conditions.add(view.timestamp.after(start));
-        if(end != null) conditions.add(view.timestamp.before(end));
+        if (start != null) conditions.add(view.timestamp.after(start));
+        if (end != null) conditions.add(view.timestamp.before(end));
 
         BooleanExpression finalCondition = conditions.stream()
                 .reduce(BooleanExpression::and)

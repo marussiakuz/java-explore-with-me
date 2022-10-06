@@ -80,7 +80,7 @@ class StatRepositoryTest {
         LongStream.range(0, totalViews)
                 .forEach(iteration -> {
                     View view = createAnotherView();
-                    if(iteration < unique) view.setIp("0.0.0.0.0.155." + iteration);
+                    if (iteration < unique) view.setIp("0.0.0.0.0.155." + iteration);
                     em.persist(view);
                 });
 
