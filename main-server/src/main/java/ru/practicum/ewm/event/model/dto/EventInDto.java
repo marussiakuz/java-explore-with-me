@@ -17,12 +17,12 @@ import java.time.LocalDateTime;
 @Builder
 public class EventInDto {
     @NotBlank(message = "Annotation must not be blank")
-    @Size(min = 1, max = 260, message = "Annotation must be between 1 and 200 characters long")
+    @Size(min = 1, max = 560, message = "Annotation must be between 1 and 560 characters long")
     private String annotation;
     private long category;
     private LocationDto location;
     @NotBlank(message = "Title must not be blank")
-    @Size(min = 1, max = 120, message = "Title must be between 1 and 120 characters long")
+    @Size(min = 1, max = 260, message = "Title must be between 1 and 260 characters long")
     private String title;
     @NotBlank(message = "Description must not be blank")
     @Size(min = 1, max = 1000, message = "Description must be between 1 and 1000 characters long")

@@ -36,6 +36,7 @@ public class StatClient {
 
         log.info("the response to the GET request from the statistic server has status code={}",
                 response.getStatusCodeValue());
+        System.out.println("RESPONSE  ..." + response);
         return response.getBody();
     }
 

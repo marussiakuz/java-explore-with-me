@@ -548,7 +548,7 @@ class EventPersonalControllerTest {
 
     @Test
     void addEventIfInvalidAnnotationThenStatusIsBadRequest() throws Exception {
-        EventInDto added = createEventIn(261, 100, 100,
+        EventInDto added = createEventIn(561, 100, 100,
                 LocalDateTime.now().plusHours(2).plusMinutes(1));
 
         mockMvc.perform(post("/users/5/events")
@@ -559,7 +559,7 @@ class EventPersonalControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
                 .andExpect(MockMvcResultMatchers.jsonPath("message")
-                        .value("Annotation must be between 1 and 200 characters long"))
+                        .value("Annotation must be between 1 and 560 characters long"))
                 .andExpect(MockMvcResultMatchers.jsonPath("reason")
                         .value("Field error in object"))
                 .andExpect(MockMvcResultMatchers.jsonPath("status")
@@ -587,7 +587,7 @@ class EventPersonalControllerTest {
 
     @Test
     void addEventIfInvalidTitleThenStatusIsBadRequest() throws Exception {
-        EventInDto added = createEventIn(100, 100, 121,
+        EventInDto added = createEventIn(100, 100, 261,
                 LocalDateTime.now().plusHours(2).plusMinutes(1));
 
         mockMvc.perform(post("/users/5/events")
@@ -598,7 +598,7 @@ class EventPersonalControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
                 .andExpect(MockMvcResultMatchers.jsonPath("message")
-                        .value("Title must be between 1 and 120 characters long"))
+                        .value("Title must be between 1 and 260 characters long"))
                 .andExpect(MockMvcResultMatchers.jsonPath("reason")
                         .value("Field error in object"))
                 .andExpect(MockMvcResultMatchers.jsonPath("status")
