@@ -52,7 +52,7 @@ class StatRepositoryTest {
         LongStream.range(0, totalViews)
                 .forEach(iteration -> {
                     View view = createAnotherView();
-                    if(iteration >= fitsTheTime)
+                    if (iteration >= fitsTheTime)
                         view.setTimestamp(LocalDateTime.now().minusHours(2).plusSeconds(iteration));
                     em.persist(view);
                 });
