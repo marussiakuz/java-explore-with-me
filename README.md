@@ -1,10 +1,17 @@
-# java-explore-with-me
-Template repository for ExploreWithMe project.
+# <h1 align="center">java-explore-with-me</h1>
+
+<br/>
+
+<h3>Pull request (main ← develop) is here: &nbsp; https://github.com/marussiakuz/java-explore-with-me/pull/1   </h3>
+  
+<br/>
 
 <div>
-    <h1 align="center">Architecture diagram: </h1><br/>
+    <h1 align="center">
+    Architecture diagram: 
+    </h1>
 <div/>
-
+<br/>
 <div>
   <p align="center">
     <img width="180" height="1000" alt="ewm architecture diagram" src="https://user-images.githubusercontent.com/96682553/191831459-413f88c2-4720-4dd0-bfc6-572597257d10.png">
