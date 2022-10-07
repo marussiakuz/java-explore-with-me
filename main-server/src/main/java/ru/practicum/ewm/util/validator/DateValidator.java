@@ -19,7 +19,7 @@ public class DateValidator implements ConstraintValidator<IsLaterFromTheCurrentT
 
     @Override
     public boolean isValid(LocalDateTime localDateTime, ConstraintValidatorContext constraintValidatorContext) {
-        if(isNullable && localDateTime == null) return true;
+        if (isNullable && localDateTime == null) return true;
         assert localDateTime != null;
         return localDateTime.isAfter(minDateTime);
     }
