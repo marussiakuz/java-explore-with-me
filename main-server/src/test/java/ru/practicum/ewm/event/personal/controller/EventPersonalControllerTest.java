@@ -25,21 +25,20 @@ import ru.practicum.ewm.event.model.dto.*;
 import ru.practicum.ewm.event.personal.service.EventPersonalService;
 import ru.practicum.ewm.request.model.dto.RequestOutDto;
 import ru.practicum.ewm.user.model.dto.UserShortOutDto;
+import ru.practicum.ewm.util.TextProcessing;
 
 import javax.validation.ConstraintViolationException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Random;
-import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(EventPersonalController.class)
-class EventPersonalControllerTest {
+class EventPersonalControllerTest implements TextProcessing {
     private static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     @Autowired
     private EventPersonalController eventPersonalController;
@@ -333,6 +332,153 @@ class EventPersonalControllerTest {
     }
 
     @Test
+    void updateEventIfDateTimeIsLessThanTwoHoursThenStatusIsBadRequest() throws Exception {
+        mockMvc.perform(patch("/users/1/events")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(EventChangedDto.builder()
+                                .id(1L)
+                                .eventDate(LocalDateTime.now().plusHours(2))
+                                .description("Updated")
+                                .build())))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
+                .andExpect(MockMvcResultMatchers.jsonPath("message")
+                        .value("The event must not take place earlier than two hours from the current time"))
+                .andExpect(MockMvcResultMatchers.jsonPath("reason")
+                        .value("Field error in object"))
+                .andExpect(MockMvcResultMatchers.jsonPath("status")
+                        .value("BAD_REQUEST"));
+    }
+
+    @Test
+    void updateEventIfAnnotationIsTooLongThenStatusIsBadRequest() throws Exception {
+        mockMvc.perform(patch("/users/1/events")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(EventChangedDto.builder()
+                                .id(1L)
+                                .annotation(createText(513))
+                                .participantLimit(1000)
+                                .build())))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
+                .andExpect(MockMvcResultMatchers.jsonPath("message")
+                        .value("Annotation must be between 1 and 512 characters long"))
+                .andExpect(MockMvcResultMatchers.jsonPath("reason")
+                        .value("Field error in object"))
+                .andExpect(MockMvcResultMatchers.jsonPath("status")
+                        .value("BAD_REQUEST"));
+    }
+
+    @Test
+    void updateEventIfTitleIsTooLongThenStatusIsBadRequest() throws Exception {
+        mockMvc.perform(patch("/users/1/events")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(EventChangedDto.builder()
+                                .id(1L)
+                                .title(createText(513))
+                                .participantLimit(1000)
+                                .build())))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
+                .andExpect(MockMvcResultMatchers.jsonPath("message")
+                        .value("Title must be between 1 and 512 characters long"))
+                .andExpect(MockMvcResultMatchers.jsonPath("reason")
+                        .value("Field error in object"))
+                .andExpect(MockMvcResultMatchers.jsonPath("status")
+                        .value("BAD_REQUEST"));
+    }
+
+    @Test
+    void updateEventIfDescriptionIsTooLongThenStatusIsBadRequest() throws Exception {
+        mockMvc.perform(patch("/users/1/events")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(EventChangedDto.builder()
+                                .id(1L)
+                                .description(createText(1001))
+                                .participantLimit(1000)
+                                .build())))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
+                .andExpect(MockMvcResultMatchers.jsonPath("message")
+                        .value("Description must be between 1 and 1000 characters long"))
+                .andExpect(MockMvcResultMatchers.jsonPath("reason")
+                        .value("Field error in object"))
+                .andExpect(MockMvcResultMatchers.jsonPath("status")
+                        .value("BAD_REQUEST"));
+    }
+
+    @Test
+    void updateEventIfInvalidAnnotationThenStatusIsBadRequest() throws Exception {
+        mockMvc.perform(patch("/users/1/events")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(EventChangedDto.builder()
+                                .id(1L)
+                                .annotation("   ")
+                                .participantLimit(1000)
+                                .build())))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
+                .andExpect(MockMvcResultMatchers.jsonPath("message")
+                        .value("Annotation must not be blank"))
+                .andExpect(MockMvcResultMatchers.jsonPath("reason")
+                        .value("Field error in object"))
+                .andExpect(MockMvcResultMatchers.jsonPath("status")
+                        .value("BAD_REQUEST"));
+    }
+
+    @Test
+    void updateEventIfInvalidTitleThenStatusIsBadRequest() throws Exception {
+        mockMvc.perform(patch("/users/1/events")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(EventChangedDto.builder()
+                                .id(1L)
+                                .title(" ")
+                                .participantLimit(1000)
+                                .build())))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
+                .andExpect(MockMvcResultMatchers.jsonPath("message")
+                        .value("Title must not be blank"))
+                .andExpect(MockMvcResultMatchers.jsonPath("reason")
+                        .value("Field error in object"))
+                .andExpect(MockMvcResultMatchers.jsonPath("status")
+                        .value("BAD_REQUEST"));
+    }
+
+    @Test
+    void updateEventIfInvalidDescriptionThenStatusIsBadRequest() throws Exception {
+        mockMvc.perform(patch("/users/1/events")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(EventChangedDto.builder()
+                                .id(1L)
+                                .description("      \n          ")
+                                .participantLimit(1000)
+                                .build())))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
+                .andExpect(MockMvcResultMatchers.jsonPath("message")
+                        .value("Description must not be blank"))
+                .andExpect(MockMvcResultMatchers.jsonPath("reason")
+                        .value("Field error in object"))
+                .andExpect(MockMvcResultMatchers.jsonPath("status")
+                        .value("BAD_REQUEST"));
+    }
+
+    @Test
     void updateEventIfUserIdIsNegativeThenStatusIsBadRequest() throws Exception {
         mockMvc.perform(patch("/users/-5/events")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -548,7 +694,7 @@ class EventPersonalControllerTest {
 
     @Test
     void addEventIfInvalidAnnotationThenStatusIsBadRequest() throws Exception {
-        EventInDto added = createEventIn(561, 100, 100,
+        EventInDto added = createEventIn(513, 100, 100,
                 LocalDateTime.now().plusHours(2).plusMinutes(1));
 
         mockMvc.perform(post("/users/5/events")
@@ -559,7 +705,7 @@ class EventPersonalControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
                 .andExpect(MockMvcResultMatchers.jsonPath("message")
-                        .value("Annotation must be between 1 and 560 characters long"))
+                        .value("Annotation must be between 1 and 512 characters long"))
                 .andExpect(MockMvcResultMatchers.jsonPath("reason")
                         .value("Field error in object"))
                 .andExpect(MockMvcResultMatchers.jsonPath("status")
@@ -587,7 +733,7 @@ class EventPersonalControllerTest {
 
     @Test
     void addEventIfInvalidTitleThenStatusIsBadRequest() throws Exception {
-        EventInDto added = createEventIn(100, 100, 261,
+        EventInDto added = createEventIn(100, 100, 513,
                 LocalDateTime.now().plusHours(2).plusMinutes(1));
 
         mockMvc.perform(post("/users/5/events")
@@ -598,7 +744,7 @@ class EventPersonalControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
                 .andExpect(MockMvcResultMatchers.jsonPath("message")
-                        .value("Title must be between 1 and 260 characters long"))
+                        .value("Title must be between 1 and 512 characters long"))
                 .andExpect(MockMvcResultMatchers.jsonPath("reason")
                         .value("Field error in object"))
                 .andExpect(MockMvcResultMatchers.jsonPath("status")
@@ -1131,16 +1277,5 @@ class EventPersonalControllerTest {
                 .eventDate(eventDate)
                 .paid(true)
                 .build();
-    }
-
-    private String createText(int length) {
-        Random random = new Random();
-        StringBuilder builder = new StringBuilder();
-        IntStream.range(0, length).forEach(iteration -> {
-                char letter = (char) random.nextInt(Character.MAX_VALUE + 1);
-                builder.append(letter);
-        });
-
-        return builder.toString();
     }
 }

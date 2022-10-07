@@ -16,12 +16,14 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.practicum.ewm.category.admin.server.CategoryAdminService;
+import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.model.dto.CategoryChangedDto;
 import ru.practicum.ewm.category.model.dto.CategoryInDto;
 import ru.practicum.ewm.category.model.dto.CategoryOutDto;
 import ru.practicum.ewm.error.handler.ErrorHandler;
 import ru.practicum.ewm.error.handler.exception.CategoryNotFoundException;
 import ru.practicum.ewm.error.handler.exception.ConditionIsNotMetException;
+import ru.practicum.ewm.util.TextProcessing;
 
 import javax.validation.ConstraintViolationException;
 import java.nio.charset.StandardCharsets;
@@ -32,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(CategoryAdminController.class)
 @AutoConfigureMockMvc
-class CategoryAdminControllerTest {
+class CategoryAdminControllerTest implements TextProcessing {
     @Autowired
     private CategoryAdminController categoryAdminController;
     @MockBean
@@ -95,7 +97,25 @@ class CategoryAdminControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
                 .andExpect(MockMvcResultMatchers.jsonPath("message")
-                        .value("Name must not be blank"))
+                        .value("The name of the category must not be blank"))
+                .andExpect(MockMvcResultMatchers.jsonPath("reason")
+                        .value("Field error in object"))
+                .andExpect(MockMvcResultMatchers.jsonPath("status")
+                        .value("BAD_REQUEST"));
+    }
+
+    @Test
+    void addCategoryIfNameTooLongThenStatusIsBadRequest() throws Exception {
+        mockMvc.perform(post("/admin/categories")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(Category.builder()
+                                .name(createText(65)).build())))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
+                .andExpect(MockMvcResultMatchers.jsonPath("message")
+                        .value("The name of the category must be between 1 and 64 characters long"))
                 .andExpect(MockMvcResultMatchers.jsonPath("reason")
                         .value("Field error in object"))
                 .andExpect(MockMvcResultMatchers.jsonPath("status")
@@ -149,7 +169,25 @@ class CategoryAdminControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
                 .andExpect(MockMvcResultMatchers.jsonPath("message")
-                        .value("Name must not be blank"))
+                        .value("The name of the category must not be blank"))
+                .andExpect(MockMvcResultMatchers.jsonPath("reason")
+                        .value("Field error in object"))
+                .andExpect(MockMvcResultMatchers.jsonPath("status")
+                        .value("BAD_REQUEST"));
+    }
+
+    @Test
+    void updateCategoryIfNameTooLongThenStatusIsBadRequest() throws Exception {
+        mockMvc.perform(patch("/admin/categories")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(Category.builder()
+                                .name(createText(65)).build())))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
+                .andExpect(MockMvcResultMatchers.jsonPath("message")
+                        .value("The name of the category must be between 1 and 64 characters long"))
                 .andExpect(MockMvcResultMatchers.jsonPath("reason")
                         .value("Field error in object"))
                 .andExpect(MockMvcResultMatchers.jsonPath("status")

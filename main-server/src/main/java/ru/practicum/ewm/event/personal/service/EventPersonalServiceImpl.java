@@ -25,7 +25,6 @@ import ru.practicum.ewm.request.repository.RequestRepository;
 import ru.practicum.ewm.user.repository.UserRepository;
 import ru.practicum.ewm.util.Pagination;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -164,19 +163,10 @@ public class EventPersonalServiceImpl extends StatisticEventService implements E
         return RequestMapper.toRequestOut(request);
     }
 
-    private void checkEvent(Event event) {
-        if (event.getState() != State.CANCELED && event.getState() != State.PENDING)
-            throw new ConditionIsNotMetException("Only pending or canceled events can be changed");
-    }
-
     private Event checkChangesAndUpdate(EventChangedDto changed, Event beingUpdated) {
-        checkEvent(beingUpdated);
-        if (changed.getEventDate() != null) {
-            if (changed.getEventDate().isBefore(LocalDateTime.now().plusHours(2)))
-                throw new ConditionIsNotMetException("The event must not take place earlier than two hours from the " +
-                        "current time");
-            beingUpdated.setEventDate(changed.getEventDate());
-        }
+        if (beingUpdated.getState() != State.CANCELED && beingUpdated.getState() != State.PENDING)
+            throw new ConditionIsNotMetException("Only pending or canceled events can be changed");
+        if (changed.getEventDate() != null) beingUpdated.setEventDate(changed.getEventDate());
         if (changed.getAnnotation() != null) beingUpdated.setAnnotation(changed.getAnnotation());
         if (changed.getDescription() != null) beingUpdated.setDescription(changed.getDescription());
         if (changed.getTitle() != null) beingUpdated.setTitle(changed.getTitle());

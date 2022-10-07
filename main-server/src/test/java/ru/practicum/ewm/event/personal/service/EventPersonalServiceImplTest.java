@@ -271,40 +271,6 @@ class EventPersonalServiceImplTest {
     }
 
     @Test
-    void whenUpdateEventIfEventDateInLessThanTwoHoursThenThrow() {
-        Event old = initEvent(2, true, State.PENDING);
-        EventChangedDto changed = initEventChanged(2, 5, LocalDateTime.now().plusMinutes(119));
-
-        Mockito.when(eventRepository.findByIdAndInitiatorId(2, 11))
-                .thenReturn(Optional.of(old));
-
-        final ConditionIsNotMetException exception = Assertions.assertThrows(
-                ConditionIsNotMetException.class,
-                () -> eventPersonalService.updateEvent(11, changed));
-
-        Assertions.assertEquals("The event must not take place earlier than two hours from the current time",
-                exception.getMessage());
-
-        Mockito.verify(eventRepository, Mockito.times(1))
-                .findByIdAndInitiatorId(2, 11);
-
-        Mockito.verify(categoryRepository, Mockito.never())
-                .findById(5L);
-
-        Mockito.verify(eventStatClient, Mockito.never())
-                .getStatisticOnViews(List.of(old), true);
-
-        Mockito.verify(requestRepository, Mockito.never())
-                .countByEventId(2);
-
-        Mockito.verify(requestRepository, Mockito.never())
-                .countByEventIdAndStatus(2, Status.CONFIRMED);
-
-        Mockito.verify(eventRepository, Mockito.never())
-                .save(Mockito.any(Event.class));
-    }
-
-    @Test
     void whenUpdateEventIfStatusPublishedThenThrows() {
         Event old = initEvent(2, true, State.PUBLISHED);
         EventChangedDto changed = initEventChanged(2, 5, LocalDateTime.now().plusHours(10));

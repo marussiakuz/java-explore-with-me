@@ -46,7 +46,7 @@ public class EventPersonalController {
 
     @PatchMapping
     public EventFullOutDto updateEvent(@PathVariable @Positive(message = "The value must be greater than 0") long userId,
-                                       @RequestBody EventChangedDto eventChangedDto) {
+                                       @RequestBody @Valid EventChangedDto eventChangedDto) {
         return eventPersonalService.updateEvent(userId, eventChangedDto);
     }
 

@@ -2,7 +2,6 @@ package ru.practicum.ewm.client.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import ru.practicum.ewm.event.enums.Status;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.model.dto.EventFullOutDto;

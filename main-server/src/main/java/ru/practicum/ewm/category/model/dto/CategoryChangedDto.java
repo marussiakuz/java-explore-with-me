@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 @Data
 @NoArgsConstructor
@@ -13,6 +14,7 @@ import javax.validation.constraints.NotBlank;
 @Builder
 public class CategoryChangedDto {
     private long id;
-    @NotBlank(message = "Name must not be blank")
+    @NotBlank(message = "The name of the category must not be blank")
+    @Size(min = 1, max = 64, message = "The name of the category must be between 1 and 64 characters long")
     private String name;
 }

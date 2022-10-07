@@ -1,38 +1,41 @@
 package ru.practicum.ewm.event.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import ru.practicum.ewm.category.model.dto.CategoryOutDto;
+import lombok.experimental.SuperBuilder;
 import ru.practicum.ewm.event.enums.State;
-import ru.practicum.ewm.user.model.dto.UserShortOutDto;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class EventFullOutDto implements EventOutDto {
-    private Long id;
-    private String annotation;
-    private CategoryOutDto category;
-    private UserShortOutDto initiator;
+@SuperBuilder
+public class EventFullOutDto extends EventOutDto {
     private LocationDto location;
-    private String title;
-    private int confirmedRequests;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdOn;
     private String description;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime eventDate;
-    private boolean paid;
     private int participantLimit;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime publishedOn;
     private boolean requestModeration;
     private State state;
-    private long views;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof EventFullOutDto)) return false;
+        if (!super.equals(o)) return false;
+        EventFullOutDto that = (EventFullOutDto) o;
+        return getParticipantLimit() == that.getParticipantLimit() && isRequestModeration() == that.isRequestModeration()
+                && getLocation().equals(that.getLocation()) && getCreatedOn().equals(that.getCreatedOn())
+                && getDescription().equals(that.getDescription()) && Objects.equals(getPublishedOn(),
+                that.getPublishedOn()) && getState() == that.getState();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), getLocation(), getCreatedOn(), getDescription(), getParticipantLimit(),
+                getPublishedOn(), isRequestModeration(), getState());
+    }
 }

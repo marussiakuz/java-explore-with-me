@@ -1,4 +1,4 @@
-package ru.practicum.ewm.utils;
+package ru.practicum.ewm.util;
 
 import org.junit.jupiter.params.converter.ArgumentConversionException;
 import org.junit.jupiter.params.converter.SimpleArgumentConverter;

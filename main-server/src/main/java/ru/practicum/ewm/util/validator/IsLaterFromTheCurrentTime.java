@@ -21,6 +21,7 @@ public @interface IsLaterFromTheCurrentTime {
     int hours() default 2;
 
     int minutes() default 0;
+    boolean isNullable() default false;
 
     Class<?>[] groups() default {};
 

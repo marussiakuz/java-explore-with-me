@@ -22,6 +22,7 @@ import ru.practicum.ewm.user.admin.service.UserService;
 import ru.practicum.ewm.user.model.dto.UserInDto;
 import ru.practicum.ewm.user.model.dto.UserOutDto;
 import ru.practicum.ewm.user.model.mapper.UserMapper;
+import ru.practicum.ewm.util.TextProcessing;
 
 import javax.validation.ConstraintViolationException;
 import java.nio.charset.StandardCharsets;
@@ -32,7 +33,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
-class UserControllerTest {
+class UserControllerTest implements TextProcessing {
     @Autowired
     private UserController userController;
     @MockBean
@@ -160,24 +161,37 @@ class UserControllerTest {
     }
 
     @Test
-    void addUserIfInvalidEmailThenStatusIsBadRequest() throws Exception {
+    void addUserIfNameIsTooLongThenStatusIsBadRequest() throws Exception {
         UserInDto userIn = UserInDto.builder()
-                .email("kosolapy_ya.ru")
-                .name("Mikhael")
+                .email("kosolapy@ya.ru")
+                .name(createText(257))
                 .build();
-
-        UserOutDto returned = UserMapper.toUserOut(UserMapper.toUser(userIn));
-        returned.setId(4L);
-
-        Mockito
-                .when(userService.createUser(userIn))
-                .thenReturn(returned);
 
         mockMvc.perform(post("/admin/users")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(userIn)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
+                .andExpect(MockMvcResultMatchers.jsonPath("message")
+                        .value("The username must be between 1 and 256 characters long"))
+                .andExpect(MockMvcResultMatchers.jsonPath("reason")
+                        .value("Field error in object"))
+                .andExpect(MockMvcResultMatchers.jsonPath("status")
+                        .value("BAD_REQUEST"));
+    }
+
+    @Test
+    void addUserIfInvalidEmailThenStatusIsBadRequest() throws Exception {
+        mockMvc.perform(post("/admin/users")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(UserInDto.builder()
+                                .email("kosolapy_ya.ru")
+                                .name("Mikhael")
+                                .build())))
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
                 .andExpect(MockMvcResultMatchers.jsonPath("message")

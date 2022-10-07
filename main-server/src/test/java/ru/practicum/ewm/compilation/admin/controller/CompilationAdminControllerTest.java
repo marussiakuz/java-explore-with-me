@@ -23,6 +23,7 @@ import ru.practicum.ewm.error.handler.exception.CompilationNotFoundException;
 import ru.practicum.ewm.error.handler.exception.EventNotFoundException;
 import ru.practicum.ewm.event.model.dto.EventShortOutDto;
 import ru.practicum.ewm.user.model.dto.UserShortOutDto;
+import ru.practicum.ewm.util.TextProcessing;
 
 import javax.validation.ConstraintViolationException;
 import java.nio.charset.StandardCharsets;
@@ -35,7 +36,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(CompilationAdminController.class)
-class CompilationAdminControllerTest {
+class CompilationAdminControllerTest implements TextProcessing {
     private static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     @Autowired
     private CompilationAdminController compilationAdminController;
@@ -115,7 +116,7 @@ class CompilationAdminControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(CompilationInDto.builder()
-                                .title("")
+                                .title("\n")
                                 .events(new long[]{1, 2, 3})
                                 .pinned(false)
                                 .build())))
@@ -123,6 +124,27 @@ class CompilationAdminControllerTest {
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
                 .andExpect(MockMvcResultMatchers.jsonPath("message")
                         .value("Title must not be blank"))
+                .andExpect(MockMvcResultMatchers.jsonPath("reason")
+                        .value("Field error in object"))
+                .andExpect(MockMvcResultMatchers.jsonPath("status")
+                        .value("BAD_REQUEST"));
+    }
+
+    @Test
+    void addCompilationIfTitleIsTooLongThenStatusIsBadRequest() throws Exception {
+        mockMvc.perform(post("/admin/compilations")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(CompilationInDto.builder()
+                                .title(createText(513))
+                                .events(new long[]{1, 2, 3})
+                                .pinned(false)
+                                .build())))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
+                .andExpect(MockMvcResultMatchers.jsonPath("message")
+                        .value("Title must be between 1 and 512 characters long"))
                 .andExpect(MockMvcResultMatchers.jsonPath("reason")
                         .value("Field error in object"))
                 .andExpect(MockMvcResultMatchers.jsonPath("status")
