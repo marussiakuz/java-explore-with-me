@@ -19,10 +19,15 @@ import ru.practicum.ewm.error.handler.exception.ConditionIsNotMetException;
 import ru.practicum.ewm.error.handler.exception.EventNotFoundException;
 import ru.practicum.ewm.event.enums.State;
 import ru.practicum.ewm.event.enums.Status;
+import ru.practicum.ewm.event.model.Comment;
 import ru.practicum.ewm.event.model.Event;
+import ru.practicum.ewm.event.model.dto.CommentInDto;
 import ru.practicum.ewm.event.model.dto.EventAdminChangedDto;
 import ru.practicum.ewm.event.model.dto.EventFullOutDto;
+import ru.practicum.ewm.event.model.dto.EventOutDto;
+import ru.practicum.ewm.event.model.mapper.CommentMapper;
 import ru.practicum.ewm.event.model.mapper.EventMapper;
+import ru.practicum.ewm.event.repository.CommentRepository;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.request.repository.RequestRepository;
 import ru.practicum.ewm.user.model.User;
@@ -50,6 +55,8 @@ class EventAdminServiceImplTest {
     private RequestRepository requestRepository;
     @Mock
     private CategoryRepository categoryRepository;
+    @Mock
+    private CommentRepository commentRepository;
     private static Event eventFirst;
     private static Event eventSecond;
     private static EventAdminChangedDto changedDto;
@@ -70,6 +77,7 @@ class EventAdminServiceImplTest {
                         .id(4L)
                         .email("user@gmail.com")
                         .build())
+                .state(State.PUBLISHED)
                 .createdOn(LocalDateTime.now())
                 .build();
 
@@ -87,6 +95,7 @@ class EventAdminServiceImplTest {
                         .id(4L)
                         .email("dogs@gmail.com")
                         .build())
+                .state(State.PENDING)
                 .createdOn(LocalDateTime.now())
                 .build();
 
@@ -102,36 +111,33 @@ class EventAdminServiceImplTest {
         Mockito.when(eventRepository.findAll(Mockito.any(Pagination.class)))
                 .thenReturn(events);
 
-        Mockito.when(eventStatClient.getStatisticOnViews(List.of(eventFirst, eventSecond), true))
-                .thenReturn(new HashMap<>());
+        HashMap<Long, Long> views = new HashMap<>();
+        views.put(2L, 100L);
+
+        Mockito.when(eventStatClient.getStatisticOnViews(List.of(eventFirst), true))
+                .thenReturn(views);
 
         Mockito.when(requestRepository.countByEventIdAndStatus(2, Status.CONFIRMED))
                 .thenReturn(2L);
 
-        Mockito.when(requestRepository.countByEventId(3))
-                .thenReturn(15L);
-
-        List<EventFullOutDto> found = eventAdminService.getEvents(null, null, null,
-                null, null, 0, 10);
+        List<EventOutDto> found = eventAdminService.getEvents(null, null, null, null,
+                null, 0, 10);
 
         assertThat(found.size(), equalTo(2));
-        assertThat(found.get(0), equalTo(EventMapper.toEventFull(eventFirst, 2, 0)));
-        assertThat(found.get(1), equalTo(EventMapper.toEventFull(eventSecond, 15, 0)));
+        assertThat(found.get(0), equalTo(EventMapper.toEventFull(eventFirst, 2, 100)));
+        assertThat(found.get(1), equalTo(EventMapper.toEventFull(eventSecond, 0, 0)));
 
         Mockito.verify(eventRepository, Mockito.times(1))
                 .findAll(Mockito.any(Pagination.class));
 
         Mockito.verify(eventStatClient, Mockito.times(1))
-                .getStatisticOnViews(List.of(eventFirst, eventSecond), true);
+                .getStatisticOnViews(List.of(eventFirst), true);
 
         Mockito.verify(requestRepository, Mockito.times(1))
                 .countByEventIdAndStatus(2, Status.CONFIRMED);
 
         Mockito.verify(requestRepository, Mockito.never())
-                .countByEventId(2);
-
-        Mockito.verify(requestRepository, Mockito.times(1))
-                .countByEventId(3);
+                .countByEventId(Mockito.anyLong());
 
         Mockito.verify(requestRepository, Mockito.never())
                 .countByEventIdAndStatus(3, Status.CONFIRMED);
@@ -144,21 +150,21 @@ class EventAdminServiceImplTest {
         Mockito.when(eventRepository.findAll(Mockito.any(BooleanExpression.class), Mockito.any(Pagination.class)))
                 .thenReturn(events);
 
-        Mockito.when(eventStatClient.getStatisticOnViews(List.of(eventFirst, eventSecond), true))
-                .thenReturn(new HashMap<>());
+        HashMap<Long, Long> views = new HashMap<>();
+        views.put(2L, 100L);
+
+        Mockito.when(eventStatClient.getStatisticOnViews(List.of(eventFirst), true))
+                .thenReturn(views);
 
         Mockito.when(requestRepository.countByEventIdAndStatus(2, Status.CONFIRMED))
-                .thenReturn(2L);
-
-        Mockito.when(requestRepository.countByEventId(3))
                 .thenReturn(15L);
 
-        List<EventFullOutDto> found = eventAdminService.getEvents(new int[]{1, 2}, new String[]{"PUBLISHED", "PENDING"},
+        List<EventOutDto> found = eventAdminService.getEvents(new int[]{1, 2}, new String[]{"PUBLISHED", "PENDING"},
                 null, null, null, 0, 10);
 
         assertThat(found.size(), equalTo(2));
-        assertThat(found.get(0), equalTo(EventMapper.toEventFull(eventFirst, 2, 0)));
-        assertThat(found.get(1), equalTo(EventMapper.toEventFull(eventSecond, 15, 0)));
+        assertThat(found.get(0), equalTo(EventMapper.toEventFull(eventFirst, 15, 100)));
+        assertThat(found.get(1), equalTo(EventMapper.toEventFull(eventSecond, 0, 0)));
 
         Mockito.verify(eventRepository, Mockito.times(1))
                 .findAll(Mockito.any(BooleanExpression.class), Mockito.any(Pagination.class));
@@ -167,16 +173,13 @@ class EventAdminServiceImplTest {
                 .findAll(Mockito.any(Pagination.class));
 
         Mockito.verify(eventStatClient, Mockito.times(1))
-                .getStatisticOnViews(List.of(eventFirst, eventSecond), true);
+                .getStatisticOnViews(List.of(eventFirst), true);
 
         Mockito.verify(requestRepository, Mockito.times(1))
                 .countByEventIdAndStatus(2, Status.CONFIRMED);
 
         Mockito.verify(requestRepository, Mockito.never())
-                .countByEventId(2);
-
-        Mockito.verify(requestRepository, Mockito.times(1))
-                .countByEventId(3);
+                .countByEventId(Mockito.anyLong());
 
         Mockito.verify(requestRepository, Mockito.never())
                 .countByEventIdAndStatus(3, Status.CONFIRMED);
@@ -360,7 +363,7 @@ class EventAdminServiceImplTest {
 
         final EventNotFoundException exception = Assertions.assertThrows(
                 EventNotFoundException.class,
-                () -> eventAdminService.rejectEvent(3L));
+                () -> eventAdminService.rejectEvent(3L, new CommentInDto()));
 
         Assertions.assertEquals("Event with id=3 not found", exception.getMessage());
 
@@ -387,7 +390,7 @@ class EventAdminServiceImplTest {
 
         final ConditionIsNotMetException exception = Assertions.assertThrows(
                 ConditionIsNotMetException.class,
-                () -> eventAdminService.rejectEvent(3L));
+                () -> eventAdminService.rejectEvent(3L, new CommentInDto()));
 
         Assertions.assertEquals("the event must not be published", exception.getMessage());
 
@@ -409,34 +412,41 @@ class EventAdminServiceImplTest {
 
     @Test
     void whenRejectEventThenCallSaveRepository() {
-        Event published = createEvent(State.PENDING, LocalDateTime.now().plusMinutes(61));
+        Event pending = createEvent(State.PENDING, LocalDateTime.now().plusMinutes(61));
+        CommentInDto commentIn = new CommentInDto("new comment");
+        Comment comment = CommentMapper.toComment(commentIn, pending);
+        comment.setId(1L);
 
         Mockito.when(eventRepository.findById(3L))
-                .thenReturn(Optional.of(published));
+                .thenReturn(Optional.of(pending));
 
-        Mockito.when(eventRepository.save(published))
-                .thenReturn(published);
+        Mockito.when(eventRepository.save(Mockito.any(Event.class)))
+                .thenReturn(pending);
 
-        HashMap<Long, Long> views = new HashMap<>(1, 22);
+        Mockito.when(commentRepository.existsByEventIdAndClosedIsFalse(3L))
+                .thenReturn(false);
 
-        Mockito.when(eventStatClient.getStatisticOnViews(List.of(published), true))
-                .thenReturn(views);
+        Mockito.when(commentRepository.save(Mockito.any(Comment.class)))
+                .thenReturn(comment);
 
-        Mockito.when(requestRepository.countByEventIdAndStatus(1, Status.CONFIRMED))
-                .thenReturn(5L);
-
-        eventAdminService.rejectEvent(3L);
+        eventAdminService.rejectEvent(3L, commentIn);
 
         Mockito.verify(eventRepository, Mockito.times(1))
                 .findById(3L);
 
+        Mockito.verify(commentRepository, Mockito.times(1))
+                .existsByEventIdAndClosedIsFalse(3L);
+
+        Mockito.verify(commentRepository, Mockito.times(1))
+                .save(Mockito.any(Comment.class));
+
         Mockito.verify(eventRepository, Mockito.times(1))
                 .save(Mockito.any(Event.class));
 
-        Mockito.verify(eventStatClient, Mockito.times(1))
-                .getStatisticOnViews(List.of(published), true);
+        Mockito.verify(eventStatClient, Mockito.never())
+                .getStatisticOnViews(List.of(pending), true);
 
-        Mockito.verify(requestRepository, Mockito.times(1))
+        Mockito.verify(requestRepository, Mockito.never())
                 .countByEventIdAndStatus(1, Status.CONFIRMED);
 
         Mockito.verify(requestRepository, Mockito.never())

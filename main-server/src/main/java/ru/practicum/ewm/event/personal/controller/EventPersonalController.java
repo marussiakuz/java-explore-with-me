@@ -37,7 +37,7 @@ public class EventPersonalController {
     }
 
     @GetMapping("/{eventId}")
-    public EventFullOutDto getEvent(@PathVariable @Positive(message = "The value {userId} must be greater than 0")
+    public EventOutDto getEvent(@PathVariable @Positive(message = "The value {userId} must be greater than 0")
                                         long userId,
                                     @PathVariable @Positive(message = "The value {eventId} must be greater than 0")
                                         long eventId) {
@@ -45,7 +45,7 @@ public class EventPersonalController {
     }
 
     @PatchMapping
-    public EventFullOutDto updateEvent(@PathVariable @Positive(message = "The value must be greater than 0") long userId,
+    public EventOutDto updateEvent(@PathVariable @Positive(message = "The value must be greater than 0") long userId,
                                        @RequestBody @Valid EventChangedDto eventChangedDto) {
         return eventPersonalService.updateEvent(userId, eventChangedDto);
     }
@@ -57,7 +57,7 @@ public class EventPersonalController {
     }
 
     @PatchMapping("/{eventId}")
-    public EventFullOutDto cancelEvent(@PathVariable @Positive(message = "The value {userId} must be greater than 0")
+    public EventOutDto cancelEvent(@PathVariable @Positive(message = "The value {userId} must be greater than 0")
                                            long userId,
                                        @PathVariable @Positive(message = "The value {eventId} must be greater than 0")
                                            long eventId) {

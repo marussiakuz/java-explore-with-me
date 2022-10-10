@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.event.admin.service.EventAdminService;
-import ru.practicum.ewm.event.model.dto.EventAdminChangedDto;
-import ru.practicum.ewm.event.model.dto.EventFullOutDto;
+import ru.practicum.ewm.event.model.dto.*;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
@@ -24,15 +24,15 @@ public class EventAdminController {
     }
 
     @GetMapping
-    public List<EventFullOutDto> getEvents(@RequestParam(value = "users", required = false) int[] users,
-                                           @RequestParam(value = "states", required = false) String[] states,
-                                           @RequestParam(value = "categories", required = false) int[] categories,
-                                           @RequestParam(value = "rangeStart", required = false) String rangeStart,
-                                           @RequestParam(value = "rangeEnd", required = false) String rangeEnd,
-                                           @RequestParam(value = "from", defaultValue = "0")
+    public List<EventOutDto> getEvents(@RequestParam(value = "users", required = false) int[] users,
+                                       @RequestParam(value = "states", required = false) String[] states,
+                                       @RequestParam(value = "categories", required = false) int[] categories,
+                                       @RequestParam(value = "rangeStart", required = false) String rangeStart,
+                                       @RequestParam(value = "rangeEnd", required = false) String rangeEnd,
+                                       @RequestParam(value = "from", defaultValue = "0")
                                            @PositiveOrZero(message = "The from must be greater than or equal to 0")
                                                int from,
-                                           @RequestParam(value = "size", defaultValue = "10")
+                                       @RequestParam(value = "size", defaultValue = "10")
                                            @Min(value = 1, message = "The min allowed value for the size is 1")
                                                int size) {
         return eventService.getEvents(users, states, categories, rangeStart, rangeEnd, from, size);
@@ -52,8 +52,9 @@ public class EventAdminController {
     }
 
     @PatchMapping("/{eventId}/reject")
-    public EventFullOutDto rejectEvent(@PathVariable @Positive(message = "The value must be greater than 0")
-                                           long eventId) {
-        return eventService.rejectEvent(eventId);
+    public EventCommentedDto rejectEvent(@PathVariable @Positive(message = "The value must be greater than 0")
+                                           long eventId,
+                                         @RequestBody @Valid CommentInDto commentIn) {
+        return eventService.rejectEvent(eventId, commentIn);
     }
 }

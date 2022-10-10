@@ -7,18 +7,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.client.event.EventStatClient;
-import ru.practicum.ewm.client.event.StatisticEventService;
-import ru.practicum.ewm.error.handler.exception.CategoryNotFoundException;
-import ru.practicum.ewm.error.handler.exception.ConditionIsNotMetException;
-import ru.practicum.ewm.error.handler.exception.EventNotFoundException;
-import ru.practicum.ewm.error.handler.exception.InvalidRequestException;
+import ru.practicum.ewm.error.handler.exception.*;
+import ru.practicum.ewm.event.EventMapperService;
 import ru.practicum.ewm.event.enums.State;
+import ru.practicum.ewm.event.model.Comment;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.model.QEvent;
-import ru.practicum.ewm.event.model.dto.EventAdminChangedDto;
-import ru.practicum.ewm.event.model.dto.EventFullOutDto;
-import ru.practicum.ewm.event.model.dto.LocationDto;
+import ru.practicum.ewm.event.model.dto.*;
+import ru.practicum.ewm.event.model.mapper.CommentMapper;
 import ru.practicum.ewm.event.model.mapper.EventMapper;
+import ru.practicum.ewm.event.repository.CommentRepository;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.request.repository.RequestRepository;
 import ru.practicum.ewm.util.Pagination;
@@ -33,20 +31,21 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class EventAdminServiceImpl extends StatisticEventService implements EventAdminService {
+public class EventAdminServiceImpl extends EventMapperService implements EventAdminService {
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
 
     @Autowired
     public EventAdminServiceImpl(EventStatClient eventStatClient, RequestRepository requestRepository,
-                                 EventRepository eventRepository, CategoryRepository categoryRepository) {
-        super(eventStatClient, requestRepository);
+                                 EventRepository eventRepository, CategoryRepository categoryRepository,
+                                 CommentRepository commentRepository) {
+        super(eventStatClient, requestRepository, commentRepository);
         this.eventRepository = eventRepository;
         this.categoryRepository = categoryRepository;
     }
 
     @Override
-    public List<EventFullOutDto> getEvents(int[] users, String[] states, int[] categories, String rangeStart,
+    public List<EventOutDto> getEvents(int[] users, String[] states, int[] categories, String rangeStart,
                                            String rangeEnd, int from, int size) {
         State[] enumStates = states == null ? null
                 : Arrays.stream(states)
@@ -60,10 +59,10 @@ public class EventAdminServiceImpl extends StatisticEventService implements Even
         log.debug("the final condition has been formed: {}", finalCondition.isPresent() ? finalCondition.get() : "empty");
         Pageable pageable = Pagination.of(from, size);
 
-        return addConfirmedRequestsAndViews(finalCondition
+        return finalCondition
                 .map(expression -> eventRepository.findAll(expression, pageable).getContent())
-                .orElseGet(() -> eventRepository.findAll(pageable).getContent()), true).stream()
-                .map(eventOutDto -> (EventFullOutDto) eventOutDto)
+                .orElseGet(() -> eventRepository.findAll(pageable).getContent()).stream()
+                .map(this::mapToSuitableDtoDependingOnState)
                 .collect(Collectors.toList());
     }
 
@@ -84,12 +83,14 @@ public class EventAdminServiceImpl extends StatisticEventService implements Even
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException(String.format("Event with id=%s not found", eventId)));
 
-        if (event.getState() != State.PENDING)
+        if (event.getState() != State.PENDING && event.getState() != State.RE_MODERATION)
             throw new ConditionIsNotMetException("the event must be in the publication waiting state");
 
         if (event.getEventDate().isBefore(LocalDateTime.now().plusHours(1)))
             throw new ConditionIsNotMetException("the start date of the event should be no earlier than one hour " +
                     "after the moment of publication");
+
+        if (event.getState() == State.RE_MODERATION) closedComment(eventId);
 
         event.setState(State.PUBLISHED);
         event.setPublishedOn(LocalDateTime.now());
@@ -100,18 +101,24 @@ public class EventAdminServiceImpl extends StatisticEventService implements Even
     }
 
     @Override
-    public EventFullOutDto rejectEvent(long eventId) {
+    public EventCommentedDto rejectEvent(long eventId, CommentInDto commentIn) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException(String.format("Event with id=%s not found", eventId)));
 
         if (event.getState() == State.PUBLISHED)
             throw new ConditionIsNotMetException("the event must not be published");
 
-        event.setState(State.CANCELED);
-        Event saved = eventRepository.save(event);
-        log.info("the state of event id={} changed to CANCELED", eventId);
+        if (commentRepository.existsByEventIdAndClosedIsFalse(eventId)) closedComment(eventId);
 
-        return (EventFullOutDto) addConfirmedRequestsAndViews(List.of(saved), true).get(0);
+        Comment comment = commentRepository.save(CommentMapper.toComment(commentIn, event));
+        log.info("Created a comment id={} to event id={} with the following content={}", comment.getId(), eventId,
+                comment.getText());
+
+        event.setState(State.REJECTED);
+        Event saved = eventRepository.save(event);
+        log.info("the state of event id={} changed to REJECTED", eventId);
+
+        return EventMapper.toEventCommented(saved, comment);
     }
 
     private Optional<BooleanExpression> getFinalCondition(int[] users, State[] states, int[] categories,
@@ -179,5 +186,16 @@ public class EventAdminServiceImpl extends StatisticEventService implements Even
         } catch (IllegalArgumentException e) {
             throw new InvalidRequestException(String.format("state is unsupported: %s", stateString));
         }
+    }
+
+    private void closedComment(Long eventId) {
+        Comment comment = commentRepository.findByEventIdAndClosedIsFalse(eventId)
+                .orElseThrow(() -> new CommentNotFoundException(String.format("No comments found for event id=%s, " +
+                        "the current state of the event: %s", eventId, State.RE_MODERATION)));
+
+        comment.setClosed(true);
+
+        commentRepository.save(comment);
+        log.debug("Comment id={} closed", comment.getId());
     }
 }

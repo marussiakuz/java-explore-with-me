@@ -3,11 +3,9 @@ package ru.practicum.ewm.event.model.mapper;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.model.mapper.CategoryMapper;
 import ru.practicum.ewm.event.enums.State;
+import ru.practicum.ewm.event.model.Comment;
 import ru.practicum.ewm.event.model.Event;
-import ru.practicum.ewm.event.model.dto.EventFullOutDto;
-import ru.practicum.ewm.event.model.dto.EventInDto;
-import ru.practicum.ewm.event.model.dto.EventShortOutDto;
-import ru.practicum.ewm.event.model.dto.LocationDto;
+import ru.practicum.ewm.event.model.dto.*;
 import ru.practicum.ewm.user.model.User;
 import ru.practicum.ewm.user.model.mapper.UserMapper;
 
@@ -29,24 +27,12 @@ public class EventMapper {
     }
 
     public static EventFullOutDto toEventFull(Event event, int confirmedRequests, long views) {
-        return EventFullOutDto.builder()
-                .id(event.getId())
-                .annotation(event.getAnnotation())
-                .eventDate(event.getEventDate())
-                .paid(event.isPaid())
-                .title(event.getTitle())
-                .initiator(UserMapper.toUserShort(event.getInitiator()))
-                .category(CategoryMapper.toCategoryOut(event.getCategory()))
-                .confirmedRequests(confirmedRequests)
-                .views(views)
-                .location(getLocationFromEvent(event))
-                .createdOn(event.getCreatedOn())
-                .description(event.getDescription())
-                .participantLimit(event.getParticipantLimit())
-                .publishedOn(event.getPublishedOn())
-                .requestModeration(event.isRequestModeration())
-                .state(event.getState())
-                .build();
+        return getEventFullBuilder(event, confirmedRequests, views).build();
+    }
+
+    public static EventCommentedDto toEventCommented(Event event, Comment comment) {
+        return new EventCommentedDto(getEventFullBuilder(event, 0, 0),
+                CommentMapper.toCommentOut(comment));
     }
 
     public static Event toEvent(EventInDto eventInDto, Category category, User user) {
@@ -72,5 +58,26 @@ public class EventMapper {
                 .latitude(event.getLocationLatitude())
                 .longitude(event.getLocationLongitude())
                 .build();
+    }
+
+    private static EventFullOutDto.EventFullOutDtoBuilder<?, ?> getEventFullBuilder(Event event, int confirmedRequests,
+                                                                                    long views) {
+        return EventFullOutDto.builder()
+                .id(event.getId())
+                .annotation(event.getAnnotation())
+                .eventDate(event.getEventDate())
+                .paid(event.isPaid())
+                .title(event.getTitle())
+                .initiator(UserMapper.toUserShort(event.getInitiator()))
+                .category(CategoryMapper.toCategoryOut(event.getCategory()))
+                .confirmedRequests(confirmedRequests)
+                .views(views)
+                .location(getLocationFromEvent(event))
+                .createdOn(event.getCreatedOn())
+                .description(event.getDescription())
+                .participantLimit(event.getParticipantLimit())
+                .publishedOn(event.getPublishedOn())
+                .requestModeration(event.isRequestModeration())
+                .state(event.getState());
     }
 }
