@@ -13,5 +13,5 @@ public interface EventAdminService {
 
     EventFullOutDto publishEvent(long eventId);
 
-    EventCommentedDto rejectEvent(long eventId, CommentInDto commentIn);
+    EventFullOutDto rejectEvent(long eventId, CommentInDto commentIn);
 }

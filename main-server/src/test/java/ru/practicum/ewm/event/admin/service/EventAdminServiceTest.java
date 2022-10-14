@@ -212,7 +212,7 @@ class EventAdminServiceTest {
         assertThat(saved.getState(), equalTo(State.PENDING));
 
         CommentInDto commentIn = CommentInDto.builder().text("new comment").build();
-        EventCommentedDto rejected = eventAdminService.rejectEvent(saved.getId(), commentIn);
+        EventFullOutDto rejected = eventAdminService.rejectEvent(saved.getId(), commentIn);
 
         TypedQuery<Event> eventQuery = em.createQuery("Select e from Event e where e.id = :id", Event.class);
         Event event = eventQuery

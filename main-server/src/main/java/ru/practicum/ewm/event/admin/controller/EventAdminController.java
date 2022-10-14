@@ -52,9 +52,9 @@ public class EventAdminController {
     }
 
     @PatchMapping("/{eventId}/reject")
-    public EventCommentedDto rejectEvent(@PathVariable @Positive(message = "The value must be greater than 0")
+    public EventFullOutDto rejectEvent(@PathVariable @Positive(message = "The value must be greater than 0")
                                            long eventId,
-                                         @RequestBody @Valid CommentInDto commentIn) {
+                                         @RequestBody(required = false) @Valid CommentInDto commentIn) {
         return eventService.rejectEvent(eventId, commentIn);
     }
 }

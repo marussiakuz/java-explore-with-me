@@ -101,24 +101,20 @@ public class EventAdminServiceImpl extends EventMapperService implements EventAd
     }
 
     @Override
-    public EventCommentedDto rejectEvent(long eventId, CommentInDto commentIn) {
+    public EventFullOutDto rejectEvent(long eventId, CommentInDto commentIn) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException(String.format("Event with id=%s not found", eventId)));
 
         if (event.getState() == State.PUBLISHED)
             throw new ConditionIsNotMetException("the event must not be published");
 
-        if (commentRepository.existsByEventIdAndClosedIsFalse(eventId)) closedComment(eventId);
+        if (commentIn != null) return getEventCommented(event, commentIn);
 
-        Comment comment = commentRepository.save(CommentMapper.toComment(commentIn, event));
-        log.info("Created a comment id={} to event id={} with the following content={}", comment.getId(), eventId,
-                comment.getText());
-
-        event.setState(State.REJECTED);
+        event.setState(State.CANCELED);
         Event saved = eventRepository.save(event);
-        log.info("the state of event id={} changed to REJECTED", eventId);
+        log.info("the state of event id={} changed to CANCELED by admin without commenting", eventId);
 
-        return EventMapper.toEventCommented(saved, comment);
+        return EventMapper.toEventFull(saved, 0, 0);
     }
 
     private Optional<BooleanExpression> getFinalCondition(int[] users, State[] states, int[] categories,
@@ -197,5 +193,19 @@ public class EventAdminServiceImpl extends EventMapperService implements EventAd
 
         commentRepository.save(comment);
         log.debug("Comment id={} closed", comment.getId());
+    }
+
+    private EventCommentedDto getEventCommented(Event event, CommentInDto commentIn) {
+        if (commentRepository.existsByEventIdAndClosedIsFalse(event.getId())) closedComment(event.getId());
+
+        Comment comment = commentRepository.save(CommentMapper.toComment(commentIn, event));
+        log.info("Created a comment id={} to event id={} with the following content={}", comment.getId(), event.getId(),
+                comment.getText());
+
+        event.setState(State.REJECTED);
+        Event saved = eventRepository.save(event);
+        log.info("the state of event id={} changed to REJECTED", event.getId());
+
+        return EventMapper.toEventCommented(saved, comment);
     }
 }

@@ -417,25 +417,25 @@ class EventAdminServiceImplTest {
         Comment comment = CommentMapper.toComment(commentIn, pending);
         comment.setId(1L);
 
-        Mockito.when(eventRepository.findById(3L))
+        Mockito.when(eventRepository.findById(1L))
                 .thenReturn(Optional.of(pending));
 
         Mockito.when(eventRepository.save(Mockito.any(Event.class)))
                 .thenReturn(pending);
 
-        Mockito.when(commentRepository.existsByEventIdAndClosedIsFalse(3L))
+        Mockito.when(commentRepository.existsByEventIdAndClosedIsFalse(1L))
                 .thenReturn(false);
 
         Mockito.when(commentRepository.save(Mockito.any(Comment.class)))
                 .thenReturn(comment);
 
-        eventAdminService.rejectEvent(3L, commentIn);
+        eventAdminService.rejectEvent(1L, commentIn);
 
         Mockito.verify(eventRepository, Mockito.times(1))
-                .findById(3L);
+                .findById(1L);
 
         Mockito.verify(commentRepository, Mockito.times(1))
-                .existsByEventIdAndClosedIsFalse(3L);
+                .existsByEventIdAndClosedIsFalse(1L);
 
         Mockito.verify(commentRepository, Mockito.times(1))
                 .save(Mockito.any(Comment.class));
