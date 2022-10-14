@@ -238,8 +238,8 @@ class EventPersonalControllerTest implements TextProcessing {
                 .andExpect(MockMvcResultMatchers.jsonPath("participantLimit").value(20))
                 .andExpect(MockMvcResultMatchers.jsonPath("requestModeration").value(true))
                 .andExpect(MockMvcResultMatchers.jsonPath("state").value("PENDING"))
-                .andExpect(MockMvcResultMatchers.jsonPath("location.latitude").value(46.4546f))
-                .andExpect(MockMvcResultMatchers.jsonPath("location.longitude").value(52.5483f))
+                .andExpect(MockMvcResultMatchers.jsonPath("location.lat").value(46.4546f))
+                .andExpect(MockMvcResultMatchers.jsonPath("location.lon").value(52.5483f))
                 .andExpect(MockMvcResultMatchers.jsonPath("createdOn")
                         .value("2022-09-29 15:46:17"));
     }
@@ -322,8 +322,8 @@ class EventPersonalControllerTest implements TextProcessing {
                 .andExpect(MockMvcResultMatchers.jsonPath("participantLimit").value(20))
                 .andExpect(MockMvcResultMatchers.jsonPath("requestModeration").value(true))
                 .andExpect(MockMvcResultMatchers.jsonPath("state").value("PENDING"))
-                .andExpect(MockMvcResultMatchers.jsonPath("location.latitude").value(46.4546f))
-                .andExpect(MockMvcResultMatchers.jsonPath("location.longitude").value(52.5483f))
+                .andExpect(MockMvcResultMatchers.jsonPath("location.lat").value(46.4546f))
+                .andExpect(MockMvcResultMatchers.jsonPath("location.lon").value(52.5483f))
                 .andExpect(MockMvcResultMatchers.jsonPath("createdOn")
                         .value("2022-09-29 15:46:17"));
 
@@ -650,8 +650,8 @@ class EventPersonalControllerTest implements TextProcessing {
                 .andExpect(MockMvcResultMatchers.jsonPath("participantLimit").value(20))
                 .andExpect(MockMvcResultMatchers.jsonPath("requestModeration").value(true))
                 .andExpect(MockMvcResultMatchers.jsonPath("state").value("PENDING"))
-                .andExpect(MockMvcResultMatchers.jsonPath("location.latitude").value(46.4546f))
-                .andExpect(MockMvcResultMatchers.jsonPath("location.longitude").value(52.5483f))
+                .andExpect(MockMvcResultMatchers.jsonPath("location.lat").value(46.4546f))
+                .andExpect(MockMvcResultMatchers.jsonPath("location.lon").value(52.5483f))
                 .andExpect(MockMvcResultMatchers.jsonPath("createdOn")
                         .value("2022-09-29 15:46:17"));
     }
@@ -879,8 +879,8 @@ class EventPersonalControllerTest implements TextProcessing {
                 .andExpect(MockMvcResultMatchers.jsonPath("participantLimit").value(20))
                 .andExpect(MockMvcResultMatchers.jsonPath("requestModeration").value(true))
                 .andExpect(MockMvcResultMatchers.jsonPath("state").value("PENDING"))
-                .andExpect(MockMvcResultMatchers.jsonPath("location.latitude").value(46.4546f))
-                .andExpect(MockMvcResultMatchers.jsonPath("location.longitude").value(52.5483f))
+                .andExpect(MockMvcResultMatchers.jsonPath("location.lat").value(46.4546f))
+                .andExpect(MockMvcResultMatchers.jsonPath("location.lon").value(52.5483f))
                 .andExpect(MockMvcResultMatchers.jsonPath("createdOn")
                         .value("2022-09-29 15:46:17"));
     }
