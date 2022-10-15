@@ -29,7 +29,7 @@ public class EventStatClient extends StatClient {
     private static final String API_POSTFIX_GET = "/stats?start={start}&end={end}&unique={unique}";
 
     @Autowired
-    public EventStatClient(@Value("http://stats-server:9090") String serverUrl, RestTemplateBuilder builder) {
+    public EventStatClient(@Value("stats-server-url") String serverUrl, RestTemplateBuilder builder) {
         super(builder
                 .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
                 .requestFactory(HttpComponentsClientHttpRequestFactory::new)
