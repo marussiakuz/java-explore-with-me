@@ -17,7 +17,6 @@ import ru.practicum.ewm.request.model.mapper.RequestMapper;
 import ru.practicum.ewm.request.repository.RequestRepository;
 import ru.practicum.ewm.user.repository.UserRepository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,7 +43,6 @@ public class RequestServiceImpl implements RequestService {
                         .orElseThrow(() -> new UserNotFoundException(String.format("User with id=%s not found", userId))))
                 .event(event)
                 .status(event.isRequestModeration() ? Status.PENDING : Status.CONFIRMED)
-                .created(LocalDateTime.now())
                 .build();
 
         Request saved = requestRepository.save(request);

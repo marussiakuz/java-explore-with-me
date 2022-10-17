@@ -40,7 +40,6 @@ public class EventMapper {
                 .category(category)
                 .eventDate(eventInDto.getEventDate())
                 .annotation(eventInDto.getAnnotation())
-                .createdOn(LocalDateTime.now())
                 .initiator(user)
                 .description(eventInDto.getDescription())
                 .participantLimit(eventInDto.getParticipantLimit())

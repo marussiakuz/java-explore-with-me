@@ -5,14 +5,11 @@ import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.model.dto.CommentInDto;
 import ru.practicum.ewm.event.model.dto.CommentOutDto;
 
-import java.time.LocalDateTime;
-
 public class CommentMapper {
     public static Comment toComment(CommentInDto commentIn, Event event) {
         return Comment.builder()
                 .text(commentIn.getText())
                 .event(event)
-                .created(LocalDateTime.now())
                 .closed(false)
                 .build();
     }

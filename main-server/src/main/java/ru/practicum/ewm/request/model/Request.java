@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.ewm.event.enums.Status;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.user.model.User;
@@ -25,6 +26,7 @@ public class Request {
     @ManyToOne
     @JoinColumn(name = "event_id")
     private Event event;
+    @CreationTimestamp
     private LocalDateTime created;
     @ManyToOne
     @JoinColumn(name = "requester")
