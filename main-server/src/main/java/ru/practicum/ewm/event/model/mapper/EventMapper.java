@@ -9,8 +9,6 @@ import ru.practicum.ewm.event.model.dto.*;
 import ru.practicum.ewm.user.model.User;
 import ru.practicum.ewm.user.model.mapper.UserMapper;
 
-import java.time.LocalDateTime;
-
 public class EventMapper {
     public static EventShortOutDto toEventShort(Event event, int confirmedRequests, long views) {
         return EventShortOutDto.builder()
