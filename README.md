@@ -5,7 +5,7 @@
 ## The application is a platform where you can offer an event (from an exhibition to going to the cinema or to a concert) and gather a company to participate in it.
 
 ### It's represented by two services: 
-`the main service` is responsible for all business logic, `the second service` is responsible for collecting event viewing statistics and allows you to make various selections to analyze the operation of the application.
+`main service` is responsible for all business logic, `stat service` is responsible for collecting event viewing statistics and allows you to make various selections to analyze the operation of the application.
 
 <br/>
 
@@ -47,8 +47,7 @@
 
 </br>
 
-    1. API of the main service: [main API](https://github.com/marussiakuz/java-explore-with-me/blob/main/ewm-main-service-spec.json)
-    2. API of the statistics collection service: [stat API](https://github.com/marussiakuz/java-explore-with-me/blob/main/ewm-stats-service-spec.json)
+<hr>
     
 
 <div>
