@@ -41,8 +41,8 @@ class EventInDtoTest {
         assertThat(result).extractingJsonPathStringValue("$.annotation").isEqualTo("Annotation");
         assertThat(result).extractingJsonPathStringValue("$.eventDate")
                 .isEqualTo("2022-11-11 12:30:00");
-        assertThat(result).extractingJsonPathNumberValue("$.location.longitude").isEqualTo(52.5483);
-        assertThat(result).extractingJsonPathNumberValue("$.location.latitude").isEqualTo(46.4546);
+        assertThat(result).extractingJsonPathNumberValue("$.location.lon").isEqualTo(52.5483);
+        assertThat(result).extractingJsonPathNumberValue("$.location.lat").isEqualTo(46.4546);
         assertThat(result).extractingJsonPathStringValue("$.description").isEqualTo("description");
         assertThat(result).extractingJsonPathBooleanValue("$.paid").isEqualTo(true);
         assertThat(result).extractingJsonPathNumberValue("$.participantLimit").isEqualTo(20);

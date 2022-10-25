@@ -6,17 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.client.event.EventStatClient;
-import ru.practicum.ewm.client.event.StatisticEventService;
 import ru.practicum.ewm.error.handler.exception.*;
+import ru.practicum.ewm.event.EventMapperService;
 import ru.practicum.ewm.event.enums.State;
 import ru.practicum.ewm.event.enums.Status;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.model.QEvent;
-import ru.practicum.ewm.event.model.dto.EventChangedDto;
-import ru.practicum.ewm.event.model.dto.EventFullOutDto;
-import ru.practicum.ewm.event.model.dto.EventInDto;
-import ru.practicum.ewm.event.model.dto.EventShortOutDto;
+import ru.practicum.ewm.event.model.dto.*;
 import ru.practicum.ewm.event.model.mapper.EventMapper;
+import ru.practicum.ewm.event.repository.CommentRepository;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.request.model.Request;
 import ru.practicum.ewm.request.model.dto.RequestOutDto;
@@ -30,7 +28,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class EventPersonalServiceImpl extends StatisticEventService implements EventPersonalService {
+public class EventPersonalServiceImpl extends EventMapperService implements EventPersonalService {
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
@@ -38,8 +36,8 @@ public class EventPersonalServiceImpl extends StatisticEventService implements E
     @Autowired
     public EventPersonalServiceImpl(EventStatClient eventStatClient, RequestRepository requestRepository,
                                     EventRepository eventRepository, CategoryRepository categoryRepository,
-                                    UserRepository userRepository) {
-        super(eventStatClient, requestRepository);
+                                    UserRepository userRepository, CommentRepository commentRepository) {
+        super(eventStatClient, requestRepository, commentRepository);
         this.eventRepository = eventRepository;
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
@@ -54,16 +52,16 @@ public class EventPersonalServiceImpl extends StatisticEventService implements E
     }
 
     @Override
-    public EventFullOutDto getEventById(long userId, long eventId) {
+    public EventOutDto getEventById(long userId, long eventId) {
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new EventNotFoundException(String.format("The user with id=%s didn't initiate " +
                         "the event with id=%s", userId, eventId)));
 
-        return (EventFullOutDto) addConfirmedRequestsAndViews(List.of(event), true).get(0);
+        return mapToSuitableDtoDependingOnState(event);
     }
 
     @Override
-    public EventFullOutDto updateEvent(long userId, EventChangedDto eventChangedDto) {
+    public EventOutDto updateEvent(long userId, EventChangedDto eventChangedDto) {
         Long eventId = eventChangedDto.getId();
 
         Event beingUpdated = eventId == null ? getEventByInitiatorId(userId)
@@ -75,7 +73,7 @@ public class EventPersonalServiceImpl extends StatisticEventService implements E
         Event updated = eventRepository.save(withChanges);
         log.info("the event id={} has been successfully updated", updated.getId());
 
-        return (EventFullOutDto) addConfirmedRequestsAndViews(List.of(updated), true).get(0);
+        return mapToSuitableDtoDependingOnState(updated);
     }
 
     @Override
@@ -94,18 +92,18 @@ public class EventPersonalServiceImpl extends StatisticEventService implements E
     }
 
     @Override
-    public EventFullOutDto cancelEvent(long userId, long eventId) {
+    public EventOutDto cancelEvent(long userId, long eventId) {
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new EventNotFoundException(String.format("The user with id=%s didn't initiate " +
                         "the event with id=%s", userId, eventId)));
 
-        if (event.getState() != State.PENDING)
-            throw new ConditionIsNotMetException("Only pending events can be cancelled");
+        if (event.getState() == State.PUBLISHED)
+            throw new ConditionIsNotMetException("Events in the PUBLISHED state cannot be canceled");
 
         event.setState(State.CANCELED);
         Event saved = eventRepository.save(event);
         log.info("the state of the event id={} changed to CANCELED", eventId);
-        return (EventFullOutDto) addConfirmedRequestsAndViews(List.of(saved), true).get(0);
+        return mapToSuitableDtoDependingOnState(saved);
     }
 
     @Override
@@ -164,8 +162,9 @@ public class EventPersonalServiceImpl extends StatisticEventService implements E
     }
 
     private Event checkChangesAndUpdate(EventChangedDto changed, Event beingUpdated) {
-        if (beingUpdated.getState() != State.CANCELED && beingUpdated.getState() != State.PENDING)
-            throw new ConditionIsNotMetException("Only pending or canceled events can be changed");
+        State currentState = beingUpdated.getState();
+        if (currentState == State.PUBLISHED)
+            throw new ConditionIsNotMetException("Events in the PUBLISHED state cannot be changed");
         if (changed.getEventDate() != null) beingUpdated.setEventDate(changed.getEventDate());
         if (changed.getAnnotation() != null) beingUpdated.setAnnotation(changed.getAnnotation());
         if (changed.getDescription() != null) beingUpdated.setDescription(changed.getDescription());
@@ -179,7 +178,12 @@ public class EventPersonalServiceImpl extends StatisticEventService implements E
         if (changed.getParticipantLimit() != null) beingUpdated
                 .setParticipantLimit(changed.getParticipantLimit());
         if (changed.getPaid() != null) beingUpdated.setPaid(changed.getPaid());
-        if (beingUpdated.getState() == State.CANCELED) beingUpdated.setState(State.PENDING);
+        if (currentState == State.REJECTED || currentState == State.CANCELED)
+            beingUpdated.setState(currentState == State.REJECTED
+                    || commentRepository.existsByEventIdAndClosedIsFalse(beingUpdated.getId()) ?
+                    State.RE_MODERATION : State.PENDING);
+        log.info("initial state of the event id={}: {}, current state: {}", beingUpdated.getId(), currentState,
+                beingUpdated.getState());
         return beingUpdated;
     }
 

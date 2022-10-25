@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.event.enums.State;
 import ru.practicum.ewm.user.model.User;
@@ -31,6 +32,7 @@ public class Event {
     private User initiator;
     private String title;
     @Column(name = "created_on")
+    @CreationTimestamp
     private LocalDateTime createdOn;
     private String description;
     @Column(name = "event_date")

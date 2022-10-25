@@ -8,8 +8,9 @@ import lombok.Getter;
 public enum State {
     REJECTED("REJECTED"),
     PENDING("PENDING"),
+    RE_MODERATION("RE_MODERATION"),
     PUBLISHED("PUBLISHED"),
     CANCELED("CANCELED");
 
-    private final String status;
+    private final String state;
 }

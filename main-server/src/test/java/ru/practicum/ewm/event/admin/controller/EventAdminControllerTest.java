@@ -23,6 +23,7 @@ import ru.practicum.ewm.error.handler.exception.EventNotFoundException;
 import ru.practicum.ewm.error.handler.exception.InvalidRequestException;
 import ru.practicum.ewm.event.admin.service.EventAdminService;
 import ru.practicum.ewm.event.enums.State;
+import ru.practicum.ewm.event.model.dto.CommentInDto;
 import ru.practicum.ewm.event.model.dto.EventAdminChangedDto;
 import ru.practicum.ewm.event.model.dto.EventFullOutDto;
 import ru.practicum.ewm.event.model.dto.LocationDto;
@@ -49,6 +50,7 @@ class EventAdminControllerTest {
     private final ObjectMapper mapper = new ObjectMapper();
     private static EventFullOutDto eventFullOut;
     private static EventAdminChangedDto eventAdminChanged;
+    private static CommentInDto commentIn;
 
     @BeforeAll
     public static void beforeAll() {
@@ -82,6 +84,11 @@ class EventAdminControllerTest {
         eventAdminChanged = EventAdminChangedDto.builder()
                 .category(5L)
                 .build();
+
+        commentIn = CommentInDto.builder()
+                .text("comment")
+                .build();
+
     }
 
     @BeforeEach
@@ -127,10 +134,8 @@ class EventAdminControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].participantLimit").value(20))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].requestModeration").value(true))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].state").value("PENDING"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].location.latitude")
-                        .value(46.4546f))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].location.longitude")
-                        .value(52.5483f))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].location.lat").value(46.4546f))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].location.lon").value(52.5483f))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].createdOn")
                         .value("2022-09-29 15:46:17"));
     }
@@ -235,8 +240,8 @@ class EventAdminControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("participantLimit").value(20))
                 .andExpect(MockMvcResultMatchers.jsonPath("requestModeration").value(true))
                 .andExpect(MockMvcResultMatchers.jsonPath("state").value("PENDING"))
-                .andExpect(MockMvcResultMatchers.jsonPath("location.latitude").value(46.4546f))
-                .andExpect(MockMvcResultMatchers.jsonPath("location.longitude").value(52.5483f))
+                .andExpect(MockMvcResultMatchers.jsonPath("location.lat").value(46.4546f))
+                .andExpect(MockMvcResultMatchers.jsonPath("location.lon").value(52.5483f))
                 .andExpect(MockMvcResultMatchers.jsonPath("createdOn")
                         .value("2022-09-29 15:46:17"));
     }
@@ -374,13 +379,21 @@ class EventAdminControllerTest {
 
     @Test
     void rejectEventStatusIsOk() throws Exception {
-        mockMvc.perform(patch("/admin/events/16/reject"))
+        mockMvc.perform(patch("/admin/events/16/reject")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(commentIn)))
                 .andExpect(status().isOk());
     }
 
     @Test
     void rejectEventIfEventIdIsNegativeThenStatusIsBadRequest() throws Exception {
-        mockMvc.perform(patch("/admin/events/-16/reject"))
+        mockMvc.perform(patch("/admin/events/-16/reject")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(commentIn)))
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ConstraintViolationException))
                 .andExpect(MockMvcResultMatchers.jsonPath("message")
@@ -395,9 +408,13 @@ class EventAdminControllerTest {
     void rejectEventIfThrowsEventNotFoundExceptionThenStatusIsNotFound() throws Exception {
         Mockito
                 .doThrow(new EventNotFoundException("Event with id=16 not found"))
-                .when(eventAdminService).rejectEvent(16);
+                .when(eventAdminService).rejectEvent(16, commentIn);
 
-        mockMvc.perform(patch("/admin/events/16/reject"))
+        mockMvc.perform(patch("/admin/events/16/reject")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(commentIn)))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof EventNotFoundException))
                 .andExpect(MockMvcResultMatchers.jsonPath("message")
@@ -412,9 +429,13 @@ class EventAdminControllerTest {
     void rejectEventIfStatePendingThenStatusIsNotFound() throws Exception {
         Mockito
                 .doThrow(new ConditionIsNotMetException("the event must not be published"))
-                .when(eventAdminService).rejectEvent(16);
+                .when(eventAdminService).rejectEvent(16, commentIn);
 
-        mockMvc.perform(patch("/admin/events/16/reject"))
+        mockMvc.perform(patch("/admin/events/16/reject")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(commentIn)))
                 .andExpect(status().isConflict())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ConditionIsNotMetException))
                 .andExpect(MockMvcResultMatchers.jsonPath("message")

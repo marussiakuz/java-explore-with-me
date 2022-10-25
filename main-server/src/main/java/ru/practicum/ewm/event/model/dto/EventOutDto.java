@@ -1,6 +1,7 @@
 package ru.practicum.ewm.event.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 import ru.practicum.ewm.category.model.dto.CategoryOutDto;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 
 @Data
 @SuperBuilder
+@AllArgsConstructor
 public abstract class EventOutDto {
     private Long id;
     private String annotation;

@@ -16,11 +16,9 @@ import ru.practicum.ewm.category.model.dto.CategoryInDto;
 import ru.practicum.ewm.category.model.dto.CategoryOutDto;
 import ru.practicum.ewm.client.event.EventStatClient;
 import ru.practicum.ewm.event.enums.State;
+import ru.practicum.ewm.event.model.Comment;
 import ru.practicum.ewm.event.model.Event;
-import ru.practicum.ewm.event.model.dto.EventAdminChangedDto;
-import ru.practicum.ewm.event.model.dto.EventFullOutDto;
-import ru.practicum.ewm.event.model.dto.EventInDto;
-import ru.practicum.ewm.event.model.dto.LocationDto;
+import ru.practicum.ewm.event.model.dto.*;
 import ru.practicum.ewm.event.model.mapper.EventMapper;
 import ru.practicum.ewm.event.personal.service.EventPersonalService;
 import ru.practicum.ewm.user.admin.service.UserService;
@@ -73,7 +71,7 @@ class EventAdminServiceTest {
     void getEventsWithoutDate(int indexUser, String state, int indexCatId) {
         List<EventFullOutDto> randomEvents = initRandomEvents(100);
 
-        List<EventFullOutDto> found = eventAdminService.getEvents(new int[] {userIds[indexUser]}, new String[] {state},
+        List<EventOutDto> found = eventAdminService.getEvents(new int[] {userIds[indexUser]}, new String[] {state},
                 new int[] {catIds[indexCatId]}, null, null, 0, 100);
 
         List<EventFullOutDto> filteredUsingStream = randomEvents.stream()
@@ -94,7 +92,7 @@ class EventAdminServiceTest {
         String start = LocalDateTime.now().plusDays(7).format(DATE_TIME_FORMATTER);
         String end = LocalDateTime.now().plusDays(20).format(DATE_TIME_FORMATTER);
 
-        List<EventFullOutDto> found = eventAdminService.getEvents(null, new String[] {state.getStatus()},
+        List<EventOutDto> found = eventAdminService.getEvents(null, new String[] {state.getState()},
                 null, start, end, 0, 100);
 
         List<EventFullOutDto> filteredUsingStream = randomEvents.stream()
@@ -213,17 +211,24 @@ class EventAdminServiceTest {
 
         assertThat(saved.getState(), equalTo(State.PENDING));
 
-        EventFullOutDto published = eventAdminService.rejectEvent(saved.getId());
+        CommentInDto commentIn = CommentInDto.builder().text("new comment").build();
+        EventFullOutDto rejected = eventAdminService.rejectEvent(saved.getId(), commentIn);
 
-        TypedQuery<Event> query = em.createQuery("Select e from Event e where e.id = :id", Event.class);
-        Event event = query
+        TypedQuery<Event> eventQuery = em.createQuery("Select e from Event e where e.id = :id", Event.class);
+        Event event = eventQuery
+                .setParameter("id", saved.getId())
+                .getSingleResult();
+
+        TypedQuery<Comment> commentQuery = em.createQuery("Select c from Comment c where c.event.id = :id " +
+                "and c.closed = false", Comment.class);
+        Comment comment = commentQuery
                 .setParameter("id", saved.getId())
                 .getSingleResult();
 
         assertThat(event, notNullValue());
-        assertThat(published.getState(), equalTo(State.CANCELED));
-        assertThat(event.getState(), equalTo(State.CANCELED));
-        assertThat(published, equalTo(EventMapper.toEventFull(event, 0, 0)));
+        assertThat(rejected.getState(), equalTo(State.REJECTED));
+        assertThat(event.getState(), equalTo(State.REJECTED));
+        assertThat(rejected, equalTo(EventMapper.toEventCommented(event, comment)));
     }
 
     private int[] initCategories() {
@@ -293,8 +298,8 @@ class EventAdminServiceTest {
                     long eventId = saved.getId();
                     int status = new Random().nextInt(3);
                     if (status == 0) {
-                        EventFullOutDto canceled = eventPersonalService.cancelEvent(userId, eventId);
-                        events.add(canceled);
+                        EventOutDto canceled = eventPersonalService.cancelEvent(userId, eventId);
+                        events.add((EventFullOutDto) canceled);
                     } else if (status == 1) {
                         EventFullOutDto published = eventAdminService.publishEvent(eventId);
                         events.add(published);

@@ -9,13 +9,13 @@ public interface EventPersonalService {
 
     List<EventShortOutDto> getEvents(long userId, int from, int size);
 
-    EventFullOutDto getEventById(long userId, long id);
+    EventOutDto getEventById(long userId, long id);
 
-    EventFullOutDto updateEvent(long userId, EventChangedDto eventChangedDto);
+    EventOutDto updateEvent(long userId, EventChangedDto eventChangedDto);
 
     EventFullOutDto createEvent(long userId, EventInDto eventInDto);
 
-    EventFullOutDto cancelEvent(long userId, long eventId);
+    EventOutDto cancelEvent(long userId, long eventId);
 
     List<RequestOutDto> getRequests(long userId, long eventId);
 

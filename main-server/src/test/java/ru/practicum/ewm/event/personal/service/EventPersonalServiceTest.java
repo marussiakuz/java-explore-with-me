@@ -130,7 +130,7 @@ class EventPersonalServiceTest {
 
         EventFullOutDto saved = eventPersonalService.createEvent(initiator.getId(), newEvent);
 
-        EventFullOutDto eventById = eventPersonalService.getEventById(initiator.getId(), saved.getId());
+        EventOutDto eventById = eventPersonalService.getEventById(initiator.getId(), saved.getId());
 
         TypedQuery<Event> query = em.createQuery("Select e from Event e where e.id = :id", Event.class);
         Event event = query
@@ -187,7 +187,7 @@ class EventPersonalServiceTest {
                 .annotation("Updated annotation")
                 .build();
 
-        EventFullOutDto updated = eventPersonalService.updateEvent(initiator.getId(), changed);
+        EventOutDto updated = eventPersonalService.updateEvent(initiator.getId(), changed);
 
         TypedQuery<Event> query = em.createQuery("Select e from Event e where e.id = :id", Event.class);
         Event event = query
@@ -329,8 +329,7 @@ class EventPersonalServiceTest {
                 ConditionIsNotMetException.class,
                 () -> eventPersonalService.updateEvent(initiator.getId(), changed));
 
-        Assertions.assertEquals("Only pending or canceled events can be changed",
-                exception.getMessage());
+        Assertions.assertEquals("Events in the PUBLISHED state cannot be changed", exception.getMessage());
     }
 
     @Test
@@ -460,7 +459,7 @@ class EventPersonalServiceTest {
 
         assertThat(saved.getState(), equalTo(State.PENDING));
 
-        EventFullOutDto canceled = eventPersonalService.cancelEvent(initiator.getId(), saved.getId());
+        EventOutDto canceled = eventPersonalService.cancelEvent(initiator.getId(), saved.getId());
 
         TypedQuery<Event> query = em.createQuery("Select e from Event e where e.id = :id", Event.class);
         Event event = query
@@ -514,7 +513,7 @@ class EventPersonalServiceTest {
                 ConditionIsNotMetException.class,
                 () -> eventPersonalService.cancelEvent(initiator.getId(), saved.getId()));
 
-        Assertions.assertEquals("Only pending events can be cancelled", exception.getMessage());
+        Assertions.assertEquals("Events in the PUBLISHED state cannot be canceled", exception.getMessage());
     }
 
     @Test

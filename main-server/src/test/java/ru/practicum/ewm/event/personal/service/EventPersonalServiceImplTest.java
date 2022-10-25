@@ -21,6 +21,7 @@ import ru.practicum.ewm.event.enums.Status;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.model.dto.*;
 import ru.practicum.ewm.event.model.mapper.EventMapper;
+import ru.practicum.ewm.event.repository.CommentRepository;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.request.model.Request;
 import ru.practicum.ewm.request.model.dto.RequestOutDto;
@@ -54,6 +55,8 @@ class EventPersonalServiceImplTest {
     private CategoryRepository categoryRepository;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private CommentRepository commentRepository;
     private static Category category;
 
     @BeforeAll
@@ -110,7 +113,7 @@ class EventPersonalServiceImplTest {
 
     @Test
     void whenGetEventByIdIfRequestModerationTrueThenCallAddConfirmedRequestsAndViews() {
-        Event event = initEvent(2, true, State.PENDING);
+        Event event = initEvent(2, true, State.PUBLISHED);
 
         Mockito.when(eventRepository.findByIdAndInitiatorId(2, 11))
                 .thenReturn(Optional.of(event));
@@ -124,7 +127,7 @@ class EventPersonalServiceImplTest {
         Mockito.when(requestRepository.countByEventIdAndStatus(2, Status.CONFIRMED))
                 .thenReturn(23L);
 
-        EventFullOutDto eventById = eventPersonalService.getEventById(11, 2);
+        EventOutDto eventById = eventPersonalService.getEventById(11, 2);
 
         assertThat(eventById.getViews(), equalTo(112L));
         assertThat(eventById.getConfirmedRequests(), equalTo(23));
@@ -149,27 +152,24 @@ class EventPersonalServiceImplTest {
         Mockito.when(eventRepository.findByIdAndInitiatorId(3, 11))
                 .thenReturn(Optional.of(event));
 
-        HashMap<Long, Long> views = new HashMap<>();
-        views.put(3L, 225L);
+        Mockito.when(commentRepository.findByEventIdAndClosedIsFalse(3))
+                .thenReturn(Optional.empty());
 
-        Mockito.when(eventStatClient.getStatisticOnViews(List.of(event), true))
-                .thenReturn(views);
+        EventOutDto eventById = eventPersonalService.getEventById(11, 3);
 
-        Mockito.when(requestRepository.countByEventId(3))
-                .thenReturn(48L);
-
-        EventFullOutDto eventById = eventPersonalService.getEventById(11, 3);
-
-        assertThat(eventById.getViews(), equalTo(225L));
-        assertThat(eventById.getConfirmedRequests(), equalTo(48));
+        assertThat(eventById.getViews(), equalTo(0L));
+        assertThat(eventById.getConfirmedRequests(), equalTo(0));
 
         Mockito.verify(eventRepository, Mockito.times(1))
                 .findByIdAndInitiatorId(3, 11);
 
-        Mockito.verify(eventStatClient, Mockito.times(1))
+        Mockito.verify(commentRepository, Mockito.times(1))
+                .findByEventIdAndClosedIsFalse(3);
+
+        Mockito.verify(eventStatClient, Mockito.never())
                 .getStatisticOnViews(List.of(event), true);
 
-        Mockito.verify(requestRepository, Mockito.times(1))
+        Mockito.verify(requestRepository, Mockito.never())
                 .countByEventId(3);
 
         Mockito.verify(requestRepository, Mockito.never())
@@ -187,27 +187,18 @@ class EventPersonalServiceImplTest {
         Mockito.when(eventRepository.save(Mockito.any(Event.class)))
                 .thenReturn(old);
 
-        HashMap<Long, Long> views = new HashMap<>();
-        views.put(3L, 25L);
+        EventOutDto updated = eventPersonalService.updateEvent(11, changed);
 
-        Mockito.when(eventStatClient.getStatisticOnViews(List.of(old), true))
-                .thenReturn(views);
-
-        Mockito.when(requestRepository.countByEventId(3))
-                .thenReturn(50L);
-
-        EventFullOutDto updated = eventPersonalService.updateEvent(11, changed);
-
-        assertThat(updated.getViews(), equalTo(25L));
-        assertThat(updated.getConfirmedRequests(), equalTo(50));
+        assertThat(updated.getViews(), equalTo(0L));
+        assertThat(updated.getConfirmedRequests(), equalTo(0));
 
         Mockito.verify(eventRepository, Mockito.times(1))
                 .findByIdAndInitiatorId(3, 11);
 
-        Mockito.verify(eventStatClient, Mockito.times(1))
+        Mockito.verify(eventStatClient, Mockito.never())
                 .getStatisticOnViews(List.of(old), true);
 
-        Mockito.verify(requestRepository, Mockito.times(1))
+        Mockito.verify(requestRepository, Mockito.never())
                 .countByEventId(3L);
 
         Mockito.verify(eventRepository, Mockito.times(1))
@@ -234,19 +225,10 @@ class EventPersonalServiceImplTest {
         Mockito.when(eventRepository.save(Mockito.any(Event.class)))
                 .thenReturn(old);
 
-        HashMap<Long, Long> views = new HashMap<>();
-        views.put(3L, 7L);
+        EventOutDto updated = eventPersonalService.updateEvent(11, changed);
 
-        Mockito.when(eventStatClient.getStatisticOnViews(List.of(old), true))
-                .thenReturn(views);
-
-        Mockito.when(requestRepository.countByEventId(3))
-                .thenReturn(150L);
-
-        EventFullOutDto updated = eventPersonalService.updateEvent(11, changed);
-
-        assertThat(updated.getViews(), equalTo(7L));
-        assertThat(updated.getConfirmedRequests(), equalTo(150));
+        assertThat(updated.getViews(), equalTo(0L));
+        assertThat(updated.getConfirmedRequests(), equalTo(0));
 
         Mockito.verify(eventRepository, Mockito.times(1))
                 .findByIdAndInitiatorId(3, 11);
@@ -254,10 +236,10 @@ class EventPersonalServiceImplTest {
         Mockito.verify(categoryRepository, Mockito.times(1))
                 .findById(5L);
 
-        Mockito.verify(eventStatClient, Mockito.times(1))
+        Mockito.verify(eventStatClient, Mockito.never())
                 .getStatisticOnViews(List.of(old), true);
 
-        Mockito.verify(requestRepository, Mockito.times(1))
+        Mockito.verify(requestRepository, Mockito.never())
                 .countByEventId(3);
 
         Mockito.verify(eventRepository, Mockito.times(1))
@@ -282,7 +264,7 @@ class EventPersonalServiceImplTest {
                 ConditionIsNotMetException.class,
                 () -> eventPersonalService.updateEvent(11, changed));
 
-        Assertions.assertEquals("Only pending or canceled events can be changed", exception.getMessage());
+        Assertions.assertEquals("Events in the PUBLISHED state cannot be changed", exception.getMessage());
 
         Mockito.verify(eventRepository, Mockito.times(1))
                 .findByIdAndInitiatorId(2, 11);
@@ -461,6 +443,9 @@ class EventPersonalServiceImplTest {
         Mockito.when(eventRepository.save(Mockito.any(Event.class)))
                 .thenReturn(event);
 
+        Mockito.when(commentRepository.findByEventIdAndClosedIsFalse(11))
+                .thenReturn(Optional.empty());
+
         eventPersonalService.cancelEvent(17, 11);
 
         Mockito.verify(eventRepository, Mockito.times(1))
@@ -468,6 +453,9 @@ class EventPersonalServiceImplTest {
 
         Mockito.verify(eventRepository, Mockito.times(1))
                 .save(Mockito.any(Event.class));
+
+        Mockito.verify(commentRepository, Mockito.times(1))
+                .findByEventIdAndClosedIsFalse(11);
     }
 
     @Test
@@ -489,17 +477,16 @@ class EventPersonalServiceImplTest {
                 .save(Mockito.any(Event.class));
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {"CANCELED", "PUBLISHED"})
-    void whenCancelEventIfStatusNotPendingThenThrowsConditionIsNotMetException(String state) {
+    @Test
+    void whenCancelEventIfItsAlreadyPublishedThenThrowsConditionIsNotMetException() {
         Mockito.when(eventRepository.findByIdAndInitiatorId(11, 17))
-                .thenReturn(Optional.ofNullable(initEvent(11, true, State.valueOf(state))));
+                .thenReturn(Optional.ofNullable(initEvent(11, true, State.PUBLISHED)));
 
         final ConditionIsNotMetException exception = Assertions.assertThrows(
                 ConditionIsNotMetException.class,
                 () -> eventPersonalService.cancelEvent(17, 11));
 
-        Assertions.assertEquals("Only pending events can be cancelled", exception.getMessage());
+        Assertions.assertEquals("Events in the PUBLISHED state cannot be canceled", exception.getMessage());
 
         Mockito.verify(eventRepository, Mockito.times(1))
                 .findByIdAndInitiatorId(11, 17);

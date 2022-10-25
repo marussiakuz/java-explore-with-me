@@ -24,7 +24,7 @@ class LocationDtoTest {
 
         JsonContent<LocationDto> result = json.write(location);
 
-        assertThat(result).extractingJsonPathNumberValue("$.longitude").isEqualTo(52.5483);
-        assertThat(result).extractingJsonPathNumberValue("$.latitude").isEqualTo(46.4546);
+        assertThat(result).extractingJsonPathNumberValue("$.lon").isEqualTo(52.5483);
+        assertThat(result).extractingJsonPathNumberValue("$.lat").isEqualTo(46.4546);
     }
 }

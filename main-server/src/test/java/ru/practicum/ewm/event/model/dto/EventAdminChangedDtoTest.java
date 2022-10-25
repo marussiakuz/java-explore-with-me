@@ -40,8 +40,8 @@ class EventAdminChangedDtoTest {
         assertThat(result).extractingJsonPathStringValue("$.annotation").isEqualTo("Annotation");
         assertThat(result).extractingJsonPathStringValue("$.eventDate")
                 .isEqualTo(timestamp.format(DATE_TIME_FORMATTER));
-        assertThat(result).extractingJsonPathNumberValue("$.location.longitude").isEqualTo(23.2332);
-        assertThat(result).extractingJsonPathNumberValue("$.location.latitude").isEqualTo(123.2134);
+        assertThat(result).extractingJsonPathNumberValue("$.location.lon").isEqualTo(23.2332);
+        assertThat(result).extractingJsonPathNumberValue("$.location.lat").isEqualTo(123.2134);
         assertThat(result).extractingJsonPathStringValue("$.description").isEqualTo("description");
         assertThat(result).extractingJsonPathBooleanValue("$.paid").isEqualTo(true);
         assertThat(result).extractingJsonPathNumberValue("$.participantLimit").isEqualTo(100);
