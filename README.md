@@ -48,8 +48,17 @@
 </br>
 
 <hr>
-    
 
+## Want to try this project in action? ##
+Create images and spin containers:
+
+`$ docker-compose up -d --build`
+
+After that,  the main server is available at http://localhost:8080/, the statistics server - at http://localhost:9090/.
+If desired, it is possible to change the ports in the application.properties file
+
+<hr>
+    
 <div>
     <h1 align="center">
     Architecture diagram: 
