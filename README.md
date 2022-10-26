@@ -47,7 +47,7 @@
 
 </br>
 
-The project is covered by the following tests: Web MVC Tests, Mockito, JUnit5, Json test.
+The project is covered by the following tests: Web MVC Tests, Mockito, JUnit5, Json test, Integration Tests.
 
 <hr>
 
