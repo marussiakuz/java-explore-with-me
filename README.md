@@ -47,6 +47,8 @@
 
 </br>
 
+The project is covered by the following tests: Web MVC Tests, Mockito, JUnit5, Json test.
+
 <hr>
 
 ## Want to try this project in action? ##
